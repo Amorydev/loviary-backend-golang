@@ -1,0 +1,38 @@
+# Build context exclusions
+.git/
+.gitignore
+.mvn/
+.gradle/
+.build/
+dist/
+target/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Go specific
+go.work
+go.sum
+vendor/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Test coverage
+coverage.out
+*.coverprofile
+
+# Temporary files
+tmp/
+temp/
+*.log
+.DS_Store
+
+# Migration files (keep these, but sqlc generates)
+# dbqueries.go is in repo

@@ -1,0 +1,55 @@
+# Docker Compose for local development
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: loviary-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: loviary
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: loviary-api
+    environment:
+      APP_ENV: development
+      APP_PORT: 8080
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: loviary
+      DB_SSLMODE: disable
+      DB_TIMEZONE: Asia/Ho_Chi_Minh
+      JWT_SECRET: dev-secret-key-change-in-production-min-256-bits
+      JWT_ACCESS_TOKEN_TTL: 15m
+      JWT_REFRESH_TOKEN_TTL: 720h
+      LOG_LEVEL: debug
+      LOG_FORMAT: json
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # For development, mount source and use air for hot reload
+    # volumes:
+    #   - .:/app
+    # command: ["air", "-c", ".air.toml"]
+
+volumes:
+  postgres_data:

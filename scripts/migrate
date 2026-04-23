@@ -1,0 +1,174 @@
+package main
+
+import (
+	"flag"
+	"fmt"
+	"os"
+	"path/filepath"
+	"time"
+
+	"github.com/pressly/goose/v3"
+)
+
+func main() {
+	var (
+		cmd   string
+		ts    string
+		dir   string
+		table string
+	)
+
+	flag.StringVar(&cmd, "cmd", "", "Command: up, down, status, create")
+	flag.StringVar(&ts, "ts", time.Now().Format("20060102150405"), "Timestamp for migration filename")
+	flag.StringVar(&dir, "dir", "./migrations", "Migrations directory")
+	flag.StringVar(&table, "table", "schema_migrations", "Migration table name")
+	flag.Parse()
+
+	if cmd == "" {
+		fmt.Println("Usage: migrate -cmd=up|down|status|create [-ts=timestamp] [-dir=./migrations]")
+		os.Exit(1)
+	}
+
+	absDir, err := filepath.Abs(dir)
+	if err != nil {
+		panic(err)
+	}
+
+	switch cmd {
+	case "up":
+		if err := migrateUp(absDir); err != nil {
+			panic(err)
+		}
+	case "down":
+		if err := migrateDown(absDir); err != nil {
+			panic(err)
+		}
+	case "status":
+		if err := showStatus(absDir); err != nil {
+			panic(err)
+		}
+	case "create":
+		if flag.NArg() < 1 {
+			fmt.Println("Usage: migrate -cmd=create -ts=timestamp name")
+			os.Exit(1)
+		}
+		name := flag.Arg(0)
+		if err := createMigration(absDir, name, ts); err != nil {
+			panic(err)
+		}
+	default:
+		fmt.Printf("Unknown command: %s\n", cmd)
+		os.Exit(1)
+	}
+}
+
+func migrateUp(dir string) error {
+	db, err := openDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		return err
+	}
+
+	fmt.Println("Running migrations up...")
+	return goose.Up(db, dir)
+}
+
+func migrateDown(dir string) error {
+	db, err := openDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		return err
+	}
+
+	fmt.Println("Running migrations down...")
+	return goose.Down(db, dir)
+}
+
+func showStatus(dir string) error {
+	db, err := openDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		return err
+	}
+
+	current, err := goose.GetDBVersion(db)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Current migration version: %d\n", current)
+	return nil
+}
+
+func createMigration(dir, name, ts string) error {
+	filename := fmt.Sprintf("%s_%s", ts, name)
+	upFile := filepath.Join(dir, filename+".up.sql")
+	downFile := filepath.Join(dir, filename+".down.sql")
+
+	// Create up migration template
+	upContent := `-- +goose Up
+-- +goose StatementBegin
+CREATE TABLE IF NOT EXISTS ` + name + ` (
+    -- TODO: Add columns
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- +goose StatementEnd
+`
+
+	// Create down migration template
+	downContent := `-- +goose Down
+-- +goose StatementBegin
+DROP TABLE IF EXISTS ` + name + `;
+
+-- +goose StatementEnd
+`
+
+	if err := os.WriteFile(upFile, []byte(upContent), 0644); err != nil {
+		return err
+	}
+	if err := os.WriteFile(downFile, []byte(downContent), 0644); err != nil {
+		return err
+	}
+
+	fmt.Printf("Created migration: %s\n", filename)
+	return nil
+}
+
+func openDB() (*sql.DB, error) {
+	// TODO: Load config and connect
+	// For now, use environment variables
+	host := getEnv("DB_HOST", "localhost")
+	port := getEnv("DB_PORT", "5432")
+	user := getEnv("DB_USER", "postgres")
+	password := getEnv("DB_PASSWORD", "postgres")
+	dbname := getEnv("DB_NAME", "loviary")
+	sslmode := getEnv("DB_SSLMODE", "disable")
+
+	connStr := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		host, port, user, password, dbname, sslmode,
+	)
+
+	return sql.Open("postgres", connStr)
+}
+
+func getEnv(key, defaultValue string) string {
+	if val := os.Getenv(key); val != "" {
+		return val
+	}
+	return defaultValue
+}
