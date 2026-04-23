@@ -16,7 +16,6 @@ target/
 
 # Go specific
 go.work
-go.sum
 vendor/
 
 # Environment files

@@ -49,7 +49,16 @@ type DashboardResponse struct {
 }
 
 // GetDashboard retrieves aggregated dashboard data
-// GET /api/v1/home
+// @Summary Get dashboard
+// @Description Get aggregated dashboard data including couple info, mood, streaks
+// @Tags home
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Success  200  {object}  handlers.DashboardResponse "Dashboard data"
+// @Failure  401  {object}  handlers.ErrorResponse "Not authenticated"
+// @Failure  500  {object}  handlers.ErrorResponse "Internal server error"
+// @Router   /home [get]
 func (h *HomeHandler) GetDashboard(c *gin.Context) {
     userID, exists := middleware.GetUserID(c)
     if !exists {
@@ -152,7 +161,16 @@ type HomeSummaryResponse struct {
 }
 
 // GetSummary retrieves a simplified home summary
-// GET /api/v1/home/summary
+// @Summary Get home summary
+// @Description Get simplified summary for home widget display
+// @Tags home
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Success  200  {object}  handlers.HomeSummaryResponse "Summary data"
+// @Failure  401  {object}  handlers.ErrorResponse "Not authenticated"
+// @Failure  500  {object}  handlers.ErrorResponse "Internal server error"
+// @Router   /home/summary [get]
 func (h *HomeHandler) GetSummary(c *gin.Context) {
     userID, exists := middleware.GetUserID(c)
     if !exists {

@@ -34,6 +34,10 @@ func New(cfg *Config) (*DB, error) {
 		cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.Name, cfg.SSLMode, cfg.Timezone,
 	)
 
+	// Debug: log connection string (mask password)
+	log.Printf("DB config - Host: '%s', Port: '%s', User: '%s', DB: '%s', SSLMode: '%s', Timezone: '%s'",
+		cfg.Host, cfg.Port, cfg.User, cfg.Name, cfg.SSLMode, cfg.Timezone)
+
 	db, err := sqlx.Open("postgres", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)

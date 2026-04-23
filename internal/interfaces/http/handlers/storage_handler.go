@@ -35,7 +35,17 @@ type PresignResponse struct {
 }
 
 // Presign generates a presigned URL for file upload
-// POST /api/v1/storage/presign
+// @Summary Generate presigned upload URL
+// @Description Get a presigned URL for uploading files to storage
+// @Tags storage
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Param   request  body  handlers.PresignRequest  true  "Presign request"
+// @Success  200  {object}  handlers.PresignResponse "Presigned URL and file info"
+// @Failure  400  {object}  handlers.ErrorResponse "Invalid input or file too large"
+// @Failure  401  {object}  handlers.ErrorResponse "Not authenticated"
+// @Router   /storage/presign [post]
 func (h *StorageHandler) Presign(c *gin.Context) {
     userID, exists := middleware.GetUserID(c)
     if !exists {

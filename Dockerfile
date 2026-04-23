@@ -27,6 +27,9 @@ WORKDIR /app
 # Copy binary from builder
 COPY --from=builder /app/loviary .
 
+# Copy migrations
+COPY --from=builder /app/migrations ./migrations
+
 # Create non-root user
 RUN addgroup -g 1001 -S appgroup && \
     adduser -u 1001 -S appuser -G appgroup

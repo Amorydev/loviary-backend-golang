@@ -24,18 +24,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: builder
     container_name: loviary-api
     environment:
       APP_ENV: development
       APP_PORT: 8080
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: loviary
-      DB_SSLMODE: disable
-      DB_TIMEZONE: Asia/Ho_Chi_Minh
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_NAME: loviary
+      DATABASE_SSLMODE: disable
+      DATABASE_TIMEZONE: Asia/Ho_Chi_Minh
       JWT_SECRET: dev-secret-key-change-in-production-min-256-bits
       JWT_ACCESS_TOKEN_TTL: 15m
       JWT_REFRESH_TOKEN_TTL: 720h

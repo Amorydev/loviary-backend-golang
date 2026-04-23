@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"github.com/spf13/viper"
@@ -91,13 +92,12 @@ func Load() *Config {
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./configs")
 	viper.AddConfigPath(".")
-	viper.AutomaticEnv()
 
 	// Set defaults
 	viper.SetDefault("app.port", "8080")
 	viper.SetDefault("app.host", "0.0.0.0")
-	viper.SetDefault("db.port", "5432")
-	viper.SetDefault("db.sslmode", "disable")
+	viper.SetDefault("database.port", "5432")
+	viper.SetDefault("database.sslmode", "disable")
 	viper.SetDefault("jwt.access_token_ttl", "15m")
 	viper.SetDefault("jwt.refresh_token_ttl", "720h")
 	viper.SetDefault("rate_limit.enabled", true)
@@ -110,6 +110,60 @@ func Load() *Config {
 			log.Printf("Warning: config file not found, using env vars: %v", err)
 		}
 	}
+
+	// Manually set values from environment variables
+	// This ensures env vars are read correctly in Docker
+	if host := os.Getenv("DATABASE_HOST"); host != "" {
+		viper.Set("database.host", host)
+	}
+	if port := os.Getenv("DATABASE_PORT"); port != "" {
+		viper.Set("database.port", port)
+	}
+	if user := os.Getenv("DATABASE_USER"); user != "" {
+		viper.Set("database.user", user)
+	}
+	if password := os.Getenv("DATABASE_PASSWORD"); password != "" {
+		viper.Set("database.password", password)
+	}
+	if name := os.Getenv("DATABASE_NAME"); name != "" {
+		viper.Set("database.name", name)
+	}
+	if sslmode := os.Getenv("DATABASE_SSLMODE"); sslmode != "" {
+		viper.Set("database.sslmode", sslmode)
+	}
+	if timezone := os.Getenv("DATABASE_TIMEZONE"); timezone != "" {
+		viper.Set("database.timezone", timezone)
+	}
+	if appPort := os.Getenv("APP_PORT"); appPort != "" {
+		viper.Set("app.port", appPort)
+	}
+	if appHost := os.Getenv("APP_HOST"); appHost != "" {
+		viper.Set("app.host", appHost)
+	}
+	if jwtSecret := os.Getenv("JWT_SECRET"); jwtSecret != "" {
+		viper.Set("jwt.secret", jwtSecret)
+	}
+	if jwtAccessTTL := os.Getenv("JWT_ACCESS_TOKEN_TTL"); jwtAccessTTL != "" {
+		viper.Set("jwt.access_token_ttl", jwtAccessTTL)
+	}
+	if jwtRefreshTTL := os.Getenv("JWT_REFRESH_TOKEN_TTL"); jwtRefreshTTL != "" {
+		viper.Set("jwt.refresh_token_ttl", jwtRefreshTTL)
+	}
+	if logLevel := os.Getenv("LOG_LEVEL"); logLevel != "" {
+		viper.Set("log.level", logLevel)
+	}
+	if logFormat := os.Getenv("LOG_FORMAT"); logFormat != "" {
+		viper.Set("log.format", logFormat)
+	}
+
+	// Debug: log database config
+	log.Printf("DB config - Host: '%s', Port: '%s', User: '%s', DB: '%s', SSLMode: '%s', Timezone: '%s'",
+		viper.GetString("database.host"),
+		viper.GetString("database.port"),
+		viper.GetString("database.user"),
+		viper.GetString("database.name"),
+		viper.GetString("database.sslmode"),
+		viper.GetString("database.timezone"))
 
 	var c Config
 	if err := viper.Unmarshal(&c); err != nil {
