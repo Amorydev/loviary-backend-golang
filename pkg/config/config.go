@@ -13,6 +13,7 @@ type Config struct {
 	App      AppConfig
 	Database DBConfig
 	JWT      JWTConfig
+	OAuth    OAuthConfig
 	CORS    CORSConfig
 	Rate    RateLimitConfig
 	Log     LogConfig
@@ -45,6 +46,12 @@ type JWTConfig struct {
 	RefreshTokenTTL     time.Duration
 	Issuer              string
 	Audience            string
+}
+
+type OAuthConfig struct {
+	GoogleClientID     string
+	GoogleClientSecret string
+	GoogleRedirectURI  string
 }
 
 type CORSConfig struct {
@@ -148,6 +155,15 @@ func Load() *Config {
 	}
 	if jwtRefreshTTL := os.Getenv("JWT_REFRESH_TOKEN_TTL"); jwtRefreshTTL != "" {
 		viper.Set("jwt.refresh_token_ttl", jwtRefreshTTL)
+	}
+	if googleClientID := os.Getenv("GOOGLE_CLIENT_ID"); googleClientID != "" {
+		viper.Set("oauth.google_client_id", googleClientID)
+	}
+	if googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET"); googleClientSecret != "" {
+		viper.Set("oauth.google_client_secret", googleClientSecret)
+	}
+	if googleRedirectURI := os.Getenv("GOOGLE_REDIRECT_URI"); googleRedirectURI != "" {
+		viper.Set("oauth.google_redirect_uri", googleRedirectURI)
 	}
 	if logLevel := os.Getenv("LOG_LEVEL"); logLevel != "" {
 		viper.Set("log.level", logLevel)

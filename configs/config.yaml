@@ -1,0 +1,60 @@
+app:
+  name: "Loviary API"
+  env: "development"
+  debug: true
+  host: "0.0.0.0"
+  port: "8080"
+
+database:
+  host: "localhost"
+  port: "5432"
+  user: "loviary"
+  password: "loviary123"
+  name: "loviary"
+  sslmode: "disable"
+  timezone: "Asia/Ho_Chi_Minh"
+
+jwt:
+  secret: "your-super-secret-jwt-key-change-this-in-production-min-256-bit"
+  access_token_ttl: "15m"
+  refresh_token_ttl: "720h"
+  issuer: "loviary.app"
+  audience: "loviary.app"
+
+oauth:
+  google_client_id: "YOUR_GOOGLE_CLIENT_ID"
+  google_client_secret: "YOUR_GOOGLE_CLIENT_SECRET"
+  google_redirect_uri: "http://localhost:8080/api/v1/auth/google/callback"
+
+cors:
+  allow_origins:
+    - "http://localhost:3000"
+    - "http://localhost:8080"
+  allow_methods:
+    - "GET"
+    - "POST"
+    - "PATCH"
+    - "DELETE"
+    - "OPTIONS"
+  allow_headers:
+    - "Origin"
+    - "Content-Type"
+    - "Accept"
+    - "Authorization"
+
+rate_limit:
+  enabled: true
+  requests: 100
+  window: "1m"
+
+log:
+  level: "debug"
+  format: "json"
+
+features:
+  mood_tracking: true
+  memories: true
+  daily_sparks: true
+  promises: true
+  love_goals: true
+  time_capsules: true

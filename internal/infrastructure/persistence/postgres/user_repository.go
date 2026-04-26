@@ -29,11 +29,13 @@ func (r *UserRepository) Create(ctx context.Context, user *users.User) error {
 		INSERT INTO users (
 			user_id, username, email, password_hash, first_name, last_name,
 			date_of_birth, gender, language, key_couple, avatar_url,
-			is_active, email_verified, created_at, updated_at
+			is_active, email_verified, auth_provider, auth_provider_id, auth_provider_data,
+			created_at, updated_at
 		) VALUES (
 			:user_id, :username, :email, :password_hash, :first_name, :last_name,
 			:date_of_birth, :gender, :language, :key_couple, :avatar_url,
-			:is_active, :email_verified, :created_at, :updated_at
+			:is_active, :email_verified, :auth_provider, :auth_provider_id, :auth_provider_data,
+			:created_at, :updated_at
 		)
 	`
 
@@ -61,7 +63,8 @@ func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*users.User
 	const query = `
 		SELECT user_id, username, email, password_hash, first_name, last_name,
 		       date_of_birth, gender, language, key_couple, avatar_url,
-		       is_active, email_verified, created_at, updated_at
+		       is_active, email_verified, auth_provider, auth_provider_id, auth_provider_data,
+		       created_at, updated_at
 		FROM users
 		WHERE user_id = $1
 	`
@@ -82,7 +85,8 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*users.U
 	const query = `
 		SELECT user_id, username, email, password_hash, first_name, last_name,
 		       date_of_birth, gender, language, key_couple, avatar_url,
-		       is_active, email_verified, created_at, updated_at
+		       is_active, email_verified, auth_provider, auth_provider_id, auth_provider_data,
+		       created_at, updated_at
 		FROM users
 		WHERE email = $1
 	`
@@ -100,7 +104,8 @@ func (r *UserRepository) GetByUsername(ctx context.Context, username string) (*u
 	const query = `
 		SELECT user_id, username, email, password_hash, first_name, last_name,
 		       date_of_birth, gender, language, key_couple, avatar_url,
-		       is_active, email_verified, created_at, updated_at
+		       is_active, email_verified, auth_provider, auth_provider_id, auth_provider_data,
+		       created_at, updated_at
 		FROM users
 		WHERE username = $1
 	`
@@ -118,7 +123,8 @@ func (r *UserRepository) GetByKeyCouple(ctx context.Context, key string) (*users
 	const query = `
 		SELECT user_id, username, email, password_hash, first_name, last_name,
 		       date_of_birth, gender, language, key_couple, avatar_url,
-		       is_active, email_verified, created_at, updated_at
+		       is_active, email_verified, auth_provider, auth_provider_id, auth_provider_data,
+		       created_at, updated_at
 		FROM users
 		WHERE key_couple = $1
 	`
@@ -150,6 +156,9 @@ func (r *UserRepository) Update(ctx context.Context, user *users.User) error {
 		    avatar_url = :avatar_url,
 		    is_active = :is_active,
 		    email_verified = :email_verified,
+		    auth_provider = :auth_provider,
+		    auth_provider_id = :auth_provider_id,
+		    auth_provider_data = :auth_provider_data,
 		    updated_at = :updated_at
 		WHERE user_id = :user_id
 	`
@@ -227,7 +236,8 @@ func (r *UserRepository) List(ctx context.Context, limit, offset int) ([]users.U
 	const query = `
 		SELECT user_id, username, email, password_hash, first_name, last_name,
 		       date_of_birth, gender, language, key_couple, avatar_url,
-		       is_active, email_verified, created_at, updated_at
+		       is_active, email_verified, auth_provider, auth_provider_id, auth_provider_data,
+		       created_at, updated_at
 		FROM users
 		ORDER BY created_at DESC
 		LIMIT $1 OFFSET $2
@@ -250,4 +260,26 @@ func (r *UserRepository) Count(ctx context.Context) (int, error) {
 		return 0, err
 	}
 	return count, nil
+}
+
+// GetByProvider retrieves a user by social auth provider and provider ID
+func (r *UserRepository) GetByProvider(ctx context.Context, provider, providerID string) (*users.User, error) {
+	const query = `
+		SELECT user_id, username, email, password_hash, first_name, last_name,
+		       date_of_birth, gender, language, key_couple, avatar_url,
+		       is_active, email_verified, auth_provider, auth_provider_id, auth_provider_data,
+		       created_at, updated_at
+		FROM users
+		WHERE auth_provider = $1 AND auth_provider_id = $2
+	`
+
+	var user users.User
+	err := r.db.GetContext(ctx, &user, query, provider, providerID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, apperrors.New("USER_NOT_FOUND", "User not found with this provider")
+		}
+		return nil, err
+	}
+	return &user, nil
 }

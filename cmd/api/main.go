@@ -22,6 +22,7 @@ import (
 	"loviary.app/backend/internal/application/home"
 	"loviary.app/backend/internal/application/memories"
 	"loviary.app/backend/internal/application/moods"
+	"loviary.app/backend/internal/application/oauth"
 	"loviary.app/backend/internal/application/reminders"
 	"loviary.app/backend/internal/application/streaks"
 	"loviary.app/backend/internal/application/users"
@@ -120,9 +121,22 @@ func main() {
 		streakService,
 	)
 
+	// Initialize OAuth service
+	oauthService := oauth.NewService(
+		userRepo,
+		tokenRepo,
+		jwtManager,
+		cfg.OAuth.GoogleClientID,
+		cfg.OAuth.GoogleClientSecret,
+		cfg.OAuth.GoogleRedirectURI,
+		cfg.JWT.AccessTokenTTL,
+		cfg.JWT.RefreshTokenTTL,
+	)
+
 	// Initialize handlers
 	userHandler := handlers.NewUserHandler(userService)
 	authHandler := handlers.NewAuthHandler(authService)
+	oauthHandler := handlers.NewOAuthHandler(oauthService)
 	coupleHandler := handlers.NewCoupleHandler(coupleService, userService)
 	moodHandler := handlers.NewMoodHandler(moodService)
 	streakHandler := handlers.NewStreakHandler(streakService)
@@ -159,6 +173,11 @@ func main() {
 			auth.POST("/refresh", authHandler.Refresh)
 			auth.POST("/logout", authHandler.Logout)
 			auth.POST("/logout-all", middleware.AuthMiddleware(jwtManager), authHandler.LogoutAll)
+
+			// OAuth routes
+			auth.GET("/google", oauthHandler.GoogleRedirect)
+			auth.GET("/google/callback", oauthHandler.GoogleCallback)
+			auth.POST("/google/mobile", oauthHandler.GoogleMobile)
 		}
 
 		// User routes

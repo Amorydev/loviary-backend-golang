@@ -19,21 +19,24 @@ var (
 
 // User represents a user in the system
 type User struct {
-    ID            uuid.UUID  `db:"user_id" json:"user_id"`
-    Username      string     `db:"username" json:"username" validate:"required,min=3,max=50,alphanum"`
-    Email         string     `db:"email" json:"email" validate:"required,email,max=100"`
-    PasswordHash  string     `db:"password_hash" json:"-"`
-    FirstName     *string    `db:"first_name" json:"first_name" validate:"max=50"`
-    LastName      *string    `db:"last_name" json:"last_name" validate:"max=50"`
-    DateOfBirth   *time.Time `db:"date_of_birth" json:"date_of_birth"`
-    Gender        *shared.Gender `db:"gender" json:"gender" validate:"omitempty,oneof=male female other prefer_not"`
-    Language      string     `db:"language" json:"language" validate:"max=10"`
-    KeyCouple     *string    `db:"key_couple" json:"key_couple,omitempty"`
-    AvatarURL     *string    `db:"avatar_url" json:"avatar_url"`
-    IsActive      bool       `db:"is_active" json:"is_active"`
-    EmailVerified bool       `db:"email_verified" json:"email_verified"`
-    CreatedAt     time.Time  `db:"created_at" json:"created_at"`
-    UpdatedAt     time.Time  `db:"updated_at" json:"updated_at"`
+	ID              uuid.UUID  `db:"user_id" json:"user_id"`
+	Username        string     `db:"username" json:"username" validate:"required,min=3,max=50,alphanum"`
+	Email           string     `db:"email" json:"email" validate:"required,email,max=100"`
+	PasswordHash    string     `db:"password_hash" json:"-"`
+	FirstName       *string    `db:"first_name" json:"first_name" validate:"max=50"`
+	LastName        *string    `db:"last_name" json:"last_name" validate:"max=50"`
+	DateOfBirth     *time.Time `db:"date_of_birth" json:"date_of_birth"`
+	Gender          *shared.Gender `db:"gender" json:"gender" validate:"omitempty,oneof=male female other prefer_not"`
+	Language        string     `db:"language" json:"language" validate:"max=10"`
+	KeyCouple       *string    `db:"key_couple" json:"key_couple,omitempty"`
+	AvatarURL       *string    `db:"avatar_url" json:"avatar_url"`
+	IsActive        bool       `db:"is_active" json:"is_active"`
+	EmailVerified   bool       `db:"email_verified" json:"email_verified"`
+	AuthProvider    *string    `db:"auth_provider" json:"auth_provider,omitempty"`
+	AuthProviderID  *string    `db:"auth_provider_id" json:"auth_provider_id,omitempty"`
+	AuthProviderData *string  `db:"auth_provider_data" json:"auth_provider_data,omitempty"`
+	CreatedAt       time.Time  `db:"created_at" json:"created_at"`
+	UpdatedAt       time.Time  `db:"updated_at" json:"updated_at"`
 }
 
 // IsProfileComplete checks if user has filled basic profile info
