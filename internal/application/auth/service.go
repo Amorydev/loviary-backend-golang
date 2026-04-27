@@ -13,16 +13,20 @@ import (
     "loviary.app/backend/internal/domain/users"
     postgres "loviary.app/backend/internal/infrastructure/persistence/postgres"
     "loviary.app/backend/internal/infrastructure/jwt"
+    "loviary.app/backend/internal/application/verification"
     apperrors "loviary.app/backend/pkg/errors"
+    "loviary.app/backend/pkg/logger"
 )
 
 // Service handles authentication business logic
 type Service struct {
-    userRepo       *postgres.UserRepository
-    tokenRepo      *postgres.RefreshTokenRepository
-    jwtManager     *jwt.Manager
-    accessTokenTTL  time.Duration
-    refreshTokenTTL time.Duration
+    userRepo           *postgres.UserRepository
+    tokenRepo          *postgres.RefreshTokenRepository
+    jwtManager         *jwt.Manager
+    verificationService *verification.Service
+    accessTokenTTL     time.Duration
+    refreshTokenTTL    time.Duration
+    log                *logger.Logger
 }
 
 // NewService creates a new auth service
@@ -30,14 +34,18 @@ func NewService(
     userRepo *postgres.UserRepository,
     tokenRepo *postgres.RefreshTokenRepository,
     jwtManager *jwt.Manager,
+    verificationService *verification.Service,
+    log *logger.Logger,
     accessTokenTTL, refreshTokenTTL time.Duration,
 ) *Service {
     return &Service{
-        userRepo:        userRepo,
-        tokenRepo:       tokenRepo,
-        jwtManager:      jwtManager,
-        accessTokenTTL:  accessTokenTTL,
-        refreshTokenTTL: refreshTokenTTL,
+        userRepo:           userRepo,
+        tokenRepo:          tokenRepo,
+        jwtManager:         jwtManager,
+        verificationService: verificationService,
+        accessTokenTTL:     accessTokenTTL,
+        refreshTokenTTL:    refreshTokenTTL,
+        log:                log,
     }
 }
 
@@ -88,14 +96,15 @@ func (s *Service) Register(ctx context.Context, req RegisterRequest) (*users.Use
 
     // Create user
     user := &users.User{
-        ID:           uuid.New(),
-        Username:     req.Username,
-        Email:        req.Email,
-        PasswordHash: string(hashedPassword),
-        Language:     req.Language,
-        IsActive:     true,
-        CreatedAt:    time.Now(),
-        UpdatedAt:    time.Now(),
+        ID:            uuid.New(),
+        Username:      req.Username,
+        Email:         req.Email,
+        PasswordHash:  string(hashedPassword),
+        Language:      req.Language,
+        IsActive:      true,
+        EmailVerified: false, // Email chưa được xác thực
+        CreatedAt:     time.Now(),
+        UpdatedAt:     time.Now(),
     }
     if req.FirstName != nil {
         user.FirstName = req.FirstName
@@ -107,6 +116,14 @@ func (s *Service) Register(ctx context.Context, req RegisterRequest) (*users.Use
     // Save user
     if err := s.userRepo.Create(ctx, user); err != nil {
         return nil, apperrors.New("INTERNAL_ERROR", "Failed to create user")
+    }
+
+    // Gửi mã xác thực email (không block nếu lỗi)
+    if err := s.verificationService.CreateVerification(ctx, user.ID, user.Email); err != nil {
+        s.log.Warn("Failed to create verification", map[string]interface{}{
+            "user_id": user.ID,
+            "error":   err.Error(),
+        })
     }
 
     return user, nil
@@ -284,4 +301,16 @@ func (s *Service) Logout(ctx context.Context, refreshToken string) error {
 // LogoutAll invalidates all refresh tokens for user
 func (s *Service) LogoutAll(ctx context.Context, userID uuid.UUID) error {
     return s.tokenRepo.RevokeAllForUser(ctx, userID)
+}
+
+// GetUserByEmail retrieves a user by email
+func (s *Service) GetUserByEmail(ctx context.Context, email string) (*users.User, error) {
+    user, err := s.userRepo.GetByEmail(ctx, email)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            return nil, users.ErrNotFound
+        }
+        return nil, apperrors.New("INTERNAL_ERROR", "Failed to get user")
+    }
+    return user, nil
 }

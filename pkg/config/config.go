@@ -19,6 +19,7 @@ type Config struct {
 	Log     LogConfig
 	Storage StorageConfig
 	FCM     FCMConfig
+	SMTP    SMTPConfig
 	Features FeatureFlags
 }
 
@@ -91,6 +92,15 @@ type FeatureFlags struct {
 	Promises         bool
 	LoveGoals        bool
 	TimeCapsules     bool
+}
+
+type SMTPConfig struct {
+	Host     string
+	Port     string
+	Username string
+	Password string
+	From     string
+	Enabled  bool
 }
 
 // Load loads configuration from environment variables
@@ -170,6 +180,26 @@ func Load() *Config {
 	}
 	if logFormat := os.Getenv("LOG_FORMAT"); logFormat != "" {
 		viper.Set("log.format", logFormat)
+	}
+
+	// SMTP configuration for email verification
+	if smtpHost := os.Getenv("SMTP_HOST"); smtpHost != "" {
+		viper.Set("smtp.host", smtpHost)
+	}
+	if smtpPort := os.Getenv("SMTP_PORT"); smtpPort != "" {
+		viper.Set("smtp.port", smtpPort)
+	}
+	if smtpUser := os.Getenv("SMTP_USERNAME"); smtpUser != "" {
+		viper.Set("smtp.username", smtpUser)
+	}
+	if smtpPass := os.Getenv("SMTP_PASSWORD"); smtpPass != "" {
+		viper.Set("smtp.password", smtpPass)
+	}
+	if smtpFrom := os.Getenv("SMTP_FROM"); smtpFrom != "" {
+		viper.Set("smtp.from", smtpFrom)
+	}
+	if smtpEnabled := os.Getenv("SMTP_ENABLED"); smtpEnabled != "" {
+		viper.Set("smtp.enabled", smtpEnabled == "true")
 	}
 
 	// Debug: log database config

@@ -26,8 +26,10 @@ import (
 	"loviary.app/backend/internal/application/reminders"
 	"loviary.app/backend/internal/application/streaks"
 	"loviary.app/backend/internal/application/users"
+	"loviary.app/backend/internal/application/verification"
+	"loviary.app/backend/internal/infrastructure/email"
 	"loviary.app/backend/internal/infrastructure/jwt"
-	postgres "loviary.app/backend/internal/infrastructure/persistence/postgres"
+	"loviary.app/backend/internal/infrastructure/persistence/postgres"
 	"loviary.app/backend/internal/interfaces/http/handlers"
 	"loviary.app/backend/internal/interfaces/http/middleware"
 	"loviary.app/backend/pkg/config"
@@ -84,13 +86,14 @@ func main() {
 	}
 
 	// Initialize repositories
-	userRepo := postgres.NewUserRepository(dbConn.DB)
-	coupleRepo := postgres.NewCoupleRepository(dbConn.DB)
-	tokenRepo := postgres.NewRefreshTokenRepository(dbConn.DB)
-	moodRepo := postgres.NewMoodRepository(dbConn.DB.DB)
-	streakRepo := postgres.NewStreakRepository(dbConn.DB.DB)
-	reminderRepo := postgres.NewReminderRepository(dbConn.DB.DB)
-	memoryRepo := postgres.NewMemoryRepository(dbConn.DB.DB)
+	userRepo := persistence.NewUserRepository(dbConn.DB)
+	coupleRepo := persistence.NewCoupleRepository(dbConn.DB)
+	tokenRepo := persistence.NewRefreshTokenRepository(dbConn.DB)
+	moodRepo := persistence.NewMoodRepository(dbConn.DB.DB)
+	streakRepo := persistence.NewStreakRepository(dbConn.DB.DB)
+	reminderRepo := persistence.NewReminderRepository(dbConn.DB.DB)
+	memoryRepo := persistence.NewMemoryRepository(dbConn.DB.DB)
+	verificationRepo := persistence.NewEmailVerificationRepository(dbConn.DB)
 
 	// Initialize JWT manager
 	jwtManager := jwt.NewManager(
@@ -101,6 +104,26 @@ func main() {
 		cfg.JWT.Audience,
 	)
 
+	// Initialize email sender
+	emailCfg := &email.Config{
+		Host:     cfg.SMTP.Host,
+		Port:     cfg.SMTP.Port,
+		Username: cfg.SMTP.Username,
+		Password: cfg.SMTP.Password,
+		From:     cfg.SMTP.From,
+		Enabled:  cfg.SMTP.Enabled,
+	}
+	emailSender := email.NewSender(emailCfg)
+
+	// Initialize verification service
+	verificationService := verification.NewService(
+		verificationRepo,
+		emailSender,
+		log,
+		15*time.Minute,   // code TTL
+		1*time.Minute,    // resend window
+	)
+
 	// Initialize services
 	userService := users.NewService(userRepo)
 	coupleService := couples.NewService(coupleRepo)
@@ -108,6 +131,8 @@ func main() {
 		userRepo,
 		tokenRepo,
 		jwtManager,
+		verificationService,
+		log,
 		cfg.JWT.AccessTokenTTL,
 		cfg.JWT.RefreshTokenTTL,
 	)
@@ -135,7 +160,7 @@ func main() {
 
 	// Initialize handlers
 	userHandler := handlers.NewUserHandler(userService)
-	authHandler := handlers.NewAuthHandler(authService)
+	authHandler := handlers.NewAuthHandler(authService, verificationService)
 	oauthHandler := handlers.NewOAuthHandler(oauthService)
 	coupleHandler := handlers.NewCoupleHandler(coupleService, userService)
 	moodHandler := handlers.NewMoodHandler(moodService)
@@ -169,6 +194,8 @@ func main() {
 		auth := v1.Group("/auth")
 		{
 			auth.POST("/register", authHandler.Register)
+			auth.POST("/verify-email", authHandler.VerifyEmail)
+			auth.POST("/resend-verification", authHandler.ResendVerification)
 			auth.POST("/login", authHandler.Login)
 			auth.POST("/refresh", authHandler.Refresh)
 			auth.POST("/logout", authHandler.Logout)

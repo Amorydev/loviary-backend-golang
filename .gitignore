@@ -1,0 +1,43 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Claude Code artifacts
+.claude/
+.agents/
+.claude.json
+.claude.history
+
+# Air (hot reload)
+.air.toml
+
+# Build artifacts
+api
+bin/
+dist/
+tmp/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+coverage.out
+coverage.html
+
+# Temporary files
+tmp/
+temp/
+
+# Local configs (if any)
+configs/local.yaml
+configs/local.yml

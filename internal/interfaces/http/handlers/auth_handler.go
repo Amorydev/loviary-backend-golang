@@ -2,11 +2,15 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	appAuth "loviary.app/backend/internal/application/auth"
+	"loviary.app/backend/internal/application/verification"
 	"loviary.app/backend/internal/domain/users"
 	"loviary.app/backend/internal/interfaces/http/middleware"
 	apperrors "loviary.app/backend/pkg/errors"
@@ -14,12 +18,16 @@ import (
 
 // AuthHandler handles authentication HTTP requests
 type AuthHandler struct {
-	authService *appAuth.Service
+	authService        *appAuth.Service
+	verificationService *verification.Service
 }
 
 // NewAuthHandler creates a new auth handler
-func NewAuthHandler(authService *appAuth.Service) *AuthHandler {
-	return &AuthHandler{authService: authService}
+func NewAuthHandler(authService *appAuth.Service, verificationService *verification.Service) *AuthHandler {
+	return &AuthHandler{
+		authService:        authService,
+		verificationService: verificationService,
+	}
 }
 
 // RegisterRequest represents registration request
@@ -37,6 +45,27 @@ func (r *RegisterRequest) Validate() error {
 	if r.Language == "" {
 		r.Language = "en"
 	}
+	return nil
+}
+
+// VerifyEmailRequest represents email verification request
+type VerifyEmailRequest struct {
+	UserID uuid.UUID `json:"user_id" binding:"required"`
+	Code   string    `json:"code" binding:"required,len=6"`
+}
+
+// Validate validates the verify email request
+func (r *VerifyEmailRequest) Validate() error {
+	return nil
+}
+
+// ResendVerificationRequest represents resend verification request
+type ResendVerificationRequest struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
+// Validate validates the resend verification request
+func (r *ResendVerificationRequest) Validate() error {
 	return nil
 }
 
@@ -295,4 +324,116 @@ func (h *AuthHandler) LogoutAll(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+// VerifyEmail verifies a user's email with the 6-digit code
+// @Summary Verify email
+// @Description Verify user's email with 6-digit verification code
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param   request  body  handlers.VerifyEmailRequest  true  "Verification code"
+// @Success  200  {object}  handlers.SuccessResponse "Email verified successfully"
+// @Failure  400  {object}  handlers.ErrorResponse "Invalid input"
+// @Failure  404  {object}  handlers.ErrorResponse "Verification not found"
+// @Failure  410  {object}  handlers.ErrorResponse "Code expired"
+// @Failure  409  {object}  handlers.ErrorResponse "Email already verified"
+// @Router   /auth/verify-email [post]
+func (h *AuthHandler) VerifyEmail(c *gin.Context) {
+	var req VerifyEmailRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, apperrors.New("INVALID_INPUT", err.Error()))
+		return
+	}
+
+	// Gọi verification service để xác thực mã
+	_, err := h.verificationService.VerifyCode(c.Request.Context(), req.Code)
+	if err != nil {
+		switch {
+		case errors.Is(err, verification.ErrNotFound):
+			c.JSON(http.StatusNotFound, apperrors.New("VERIFICATION_NOT_FOUND", err.Error()))
+		case errors.Is(err, verification.ErrExpired):
+			c.JSON(http.StatusGone, apperrors.New("CODE_EXPIRED", err.Error()))
+		case errors.Is(err, verification.ErrAlreadyVerified):
+			c.JSON(http.StatusConflict, apperrors.New("ALREADY_VERIFIED", err.Error()))
+		default:
+			c.JSON(http.StatusInternalServerError, apperrors.New("INTERNAL_ERROR", "Failed to verify email"))
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Email verified successfully",
+	})
+}
+
+// ResendVerification resends the verification email
+// @Summary Resend verification email
+// @Description Resend verification email with new code
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param   request  body  handlers.ResendVerificationRequest  true  "Email address"
+// @Success  200  {object}  handlers.SuccessResponse "Verification email sent"
+// @Failure  400  {object}  handlers.ErrorResponse "Invalid input"
+// @Failure  404  {object}  handlers.ErrorResponse "User not found or already verified"
+// @Failure  409  {object}  handlers.ErrorResponse "Verification pending or resend too fast"
+// @Router   /auth/resend-verification [post]
+func (h *AuthHandler) ResendVerification(c *gin.Context) {
+	var req ResendVerificationRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, apperrors.New("INVALID_INPUT", err.Error()))
+		return
+	}
+
+	// Kiểm tra user tồn tại
+	user, err := h.authService.GetUserByEmail(c.Request.Context(), req.Email)
+	if err != nil {
+		if errors.Is(err, users.ErrNotFound) {
+			c.JSON(http.StatusNotFound, apperrors.New("USER_NOT_FOUND", "User not found"))
+		} else {
+			c.JSON(http.StatusInternalServerError, apperrors.New("INTERNAL_ERROR", "Failed to get user"))
+		}
+		return
+	}
+
+	if user.EmailVerified {
+		c.JSON(http.StatusConflict, apperrors.New("ALREADY_VERIFIED", "Email already verified"))
+		return
+	}
+
+	// Kiểm tra rate limit
+	canResend, next, err := h.verificationService.CanResend(c.Request.Context(), user.ID)
+	if err != nil {
+		// Nếu có lỗi khác (như không tìm thấy verification), cho phép tạo mới
+		if errors.Is(err, verification.ErrNotFound) || errors.Is(err, verification.ErrExpired) {
+			// Tiếp tục để tạo verification mới
+			canResend = true
+		} else if errors.Is(err, verification.ErrAlreadyVerified) {
+			c.JSON(http.StatusConflict, apperrors.New("ALREADY_VERIFIED", "Email already verified"))
+			return
+		} else {
+			c.JSON(http.StatusConflict, apperrors.New("RESEND_ERROR", err.Error()))
+			return
+		}
+	}
+
+	if !canResend {
+		waitTime := time.Until(next).Round(time.Second)
+		c.JSON(http.StatusTooManyRequests, apperrors.New("RATE_LIMIT_EXCEEDED",
+			fmt.Sprintf("Please wait %v before resending", waitTime)))
+		return
+	}
+
+	// Gửi lại verification email
+	if err := h.verificationService.CreateVerification(c.Request.Context(), user.ID, user.Email); err != nil {
+		c.JSON(http.StatusInternalServerError, apperrors.New("INTERNAL_ERROR", "Failed to resend verification"))
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Verification email sent",
+	})
 }
