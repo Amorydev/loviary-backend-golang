@@ -1,37 +1,45 @@
 package dto
 
 import (
-    "time"
+	"time"
 
-    "github.com/google/uuid"
+	"github.com/google/uuid"
 
-    "loviary.app/backend/internal/domain/streaks"
+	"loviary.app/backend/internal/domain/streaks"
 )
 
-// StreakResponse represents streak response DTO
+// StreakResponse represents the streak response DTO.
+// Streaks are now per-couple (both users must log for the streak to increment).
 type StreakResponse struct {
-    ID              uuid.UUID         `json:"id"`
-    UserID          uuid.UUID         `json:"user_id"`
-    ActivityType    string            `json:"activity_type"`
-    CurrentStreak   int               `json:"current_streak"`
-    LongestStreak   int               `json:"longest_streak"`
-    LastActiveDate  *time.Time        `json:"last_active_date,omitempty"`
-    Status          streaks.StreakStatus `json:"status"`
-    CreatedAt       time.Time         `json:"created_at"`
-    UpdatedAt       time.Time         `json:"updated_at"`
+	StreakID           uuid.UUID           `json:"streak_id"`
+	CoupleID           uuid.UUID           `json:"couple_id"`
+	ActivityType       string              `json:"activity_type"`
+	CurrentStreak      int                 `json:"current_streak"`
+	LongestStreak      int                 `json:"longest_streak"`
+	LastCompletedDate  *time.Time          `json:"last_completed_date,omitempty"`
+	Status             streaks.StreakStatus `json:"status"`
+	WeeklyLog          []DayLog            `json:"weekly_log"`
+	CreatedAt          time.Time           `json:"created_at"`
+	UpdatedAt          time.Time           `json:"updated_at"`
 }
 
-// StreakToResponse converts a Streak to response DTO
-func StreakToResponse(streak *streaks.Streak) StreakResponse {
-    return StreakResponse{
-        ID:             streak.ID,
-        UserID:         streak.UserID,
-        ActivityType:   streak.ActivityType,
-        CurrentStreak:  streak.CurrentStreak,
-        LongestStreak:  streak.LongestStreak,
-        LastActiveDate: streak.LastActiveDate,
-        Status:         streak.GetStreakStatus(),
-        CreatedAt:      streak.CreatedAt,
-        UpdatedAt:      streak.UpdatedAt,
-    }
+// StreakToResponse converts a Streak domain object to response DTO.
+func StreakToResponse(s *streaks.Streak) StreakResponse {
+	weeklyLog := make([]DayLog, len(s.WeeklyLog))
+	for i, d := range s.WeeklyLog {
+		weeklyLog[i] = DayLog{Day: d.Day, Completed: d.Completed}
+	}
+
+	return StreakResponse{
+		StreakID:          s.StreakID,
+		CoupleID:          s.CoupleID,
+		ActivityType:      s.ActivityType,
+		CurrentStreak:     s.CurrentStreak,
+		LongestStreak:     s.LongestStreak,
+		LastCompletedDate: s.LastCompletedDate,
+		Status:            s.GetStreakStatus(),
+		WeeklyLog:         weeklyLog,
+		CreatedAt:         s.CreatedAt,
+		UpdatedAt:         s.UpdatedAt,
+	}
 }

@@ -87,6 +87,11 @@ func (s *Service) CreateVerification(ctx context.Context, userID uuid.UUID, user
     }
 
     // Send email
+    s.log.Info("Sending verification email", map[string]interface{}{
+        "user_id": userID,
+        "email":   userEmail,
+        "code":    code,
+    })
     if err := s.emailSender.SendVerificationEmail(userEmail, code); err != nil {
         s.log.Error("Failed to send verification email", err, map[string]interface{}{
             "user_id": userID,
@@ -94,12 +99,12 @@ func (s *Service) CreateVerification(ctx context.Context, userID uuid.UUID, user
         })
         // Don't rollback DB, but log the error
         // Could optionally delete the verification record here
+    } else {
+        s.log.Info("Verification email sent successfully", map[string]interface{}{
+            "user_id": userID,
+            "email":   userEmail,
+        })
     }
-
-    s.log.Info("Verification email sent", map[string]interface{}{
-        "user_id": userID,
-        "email":   userEmail,
-    })
     return nil
 }
 

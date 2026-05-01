@@ -1,216 +1,203 @@
 package persistence
 
 import (
-    "context"
-    "database/sql"
-    "errors"
-    "time"
+	"context"
+	"database/sql"
+	"errors"
+	"fmt"
+	"time"
 
-    "github.com/google/uuid"
+	"github.com/google/uuid"
 
-    "loviary.app/backend/internal/domain/streaks"
-    apperrors "loviary.app/backend/pkg/errors"
+	domainStreaks "loviary.app/backend/internal/domain/streaks"
+	apperrors "loviary.app/backend/pkg/errors"
 )
 
-// StreakRepository handles database operations for streaks
+// StreakRepository handles database operations for streaks.
+// Streaks are per-couple per-activity. Both users must log for the streak to increment.
 type StreakRepository struct {
-    db *sql.DB
+	db *sql.DB
 }
 
-// NewStreakRepository creates a new streak repository
+// NewStreakRepository creates a new streak repository.
 func NewStreakRepository(db *sql.DB) *StreakRepository {
-    return &StreakRepository{db: db}
+	return &StreakRepository{db: db}
 }
 
-// Create inserts a new streak
-func (r *StreakRepository) Create(ctx context.Context, streak *streaks.Streak) error {
-    query := `
-        INSERT INTO streaks (id, user_id, activity_type, current_streak, longest_streak, last_active_date, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-    `
-    _, err := r.db.ExecContext(ctx, query,
-        streak.ID,
-        streak.UserID,
-        streak.ActivityType,
-        streak.CurrentStreak,
-        streak.LongestStreak,
-        streak.LastActiveDate,
-        streak.CreatedAt,
-        streak.UpdatedAt,
-    )
-    if err != nil {
-        return apperrors.New("INTERNAL_ERROR", "Failed to create streak")
-    }
-    return nil
+// GetByCoupleAndActivity retrieves the streak for a couple and activity type.
+func (r *StreakRepository) GetByCoupleAndActivity(ctx context.Context, coupleID uuid.UUID, activityType string) (*domainStreaks.Streak, error) {
+	query := `
+		SELECT streak_id, couple_id, activity_type, current_streak, longest_streak,
+		       last_completed_date, created_at, updated_at
+		FROM streaks
+		WHERE couple_id = $1 AND activity_type = $2
+	`
+	var s domainStreaks.Streak
+	err := r.db.QueryRowContext(ctx, query, coupleID, activityType).Scan(
+		&s.StreakID,
+		&s.CoupleID,
+		&s.ActivityType,
+		&s.CurrentStreak,
+		&s.LongestStreak,
+		&s.LastCompletedDate,
+		&s.CreatedAt,
+		&s.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, apperrors.ErrNotFound
+		}
+		return nil, apperrors.New("INTERNAL_ERROR", fmt.Sprintf("failed to get streak for couple %s", coupleID))
+	}
+	return &s, nil
 }
 
-// GetByID retrieves a streak by ID
-func (r *StreakRepository) GetByID(ctx context.Context, id uuid.UUID) (*streaks.Streak, error) {
-    query := `
-        SELECT id, user_id, activity_type, current_streak, longest_streak, last_active_date, created_at, updated_at
-        FROM streaks
-        WHERE id = $1
-    `
-    var streak streaks.Streak
-    err := r.db.QueryRowContext(ctx, query, id).Scan(
-        &streak.ID,
-        &streak.UserID,
-        &streak.ActivityType,
-        &streak.CurrentStreak,
-        &streak.LongestStreak,
-        &streak.LastActiveDate,
-        &streak.CreatedAt,
-        &streak.UpdatedAt,
-    )
-    if err != nil {
-        if errors.Is(err, sql.ErrNoRows) {
-            return nil, apperrors.StreakNotFound
-        }
-        return nil, apperrors.New("INTERNAL_ERROR", "Failed to get streak")
-    }
-    return &streak, nil
+// GetAllByCouple retrieves all streaks for a couple.
+func (r *StreakRepository) GetAllByCouple(ctx context.Context, coupleID uuid.UUID) ([]domainStreaks.Streak, error) {
+	query := `
+		SELECT streak_id, couple_id, activity_type, current_streak, longest_streak,
+		       last_completed_date, created_at, updated_at
+		FROM streaks
+		WHERE couple_id = $1
+		ORDER BY activity_type
+	`
+	rows, err := r.db.QueryContext(ctx, query, coupleID)
+	if err != nil {
+		return nil, apperrors.New("INTERNAL_ERROR", "Failed to query streaks")
+	}
+	defer rows.Close()
+
+	var list []domainStreaks.Streak
+	for rows.Next() {
+		var s domainStreaks.Streak
+		if err := rows.Scan(
+			&s.StreakID,
+			&s.CoupleID,
+			&s.ActivityType,
+			&s.CurrentStreak,
+			&s.LongestStreak,
+			&s.LastCompletedDate,
+			&s.CreatedAt,
+			&s.UpdatedAt,
+		); err != nil {
+			return nil, apperrors.New("INTERNAL_ERROR", "Failed to scan streak row")
+		}
+		list = append(list, s)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, apperrors.New("INTERNAL_ERROR", "Failed to iterate streak rows")
+	}
+	return list, nil
 }
 
-// GetByUserIDAndActivity retrieves a streak by user ID and activity type
-func (r *StreakRepository) GetByUserIDAndActivity(ctx context.Context, userID uuid.UUID, activityType string) (*streaks.Streak, error) {
-    query := `
-        SELECT id, user_id, activity_type, current_streak, longest_streak, last_active_date, created_at, updated_at
-        FROM streaks
-        WHERE user_id = $1 AND activity_type = $2
-    `
-    var streak streaks.Streak
-    err := r.db.QueryRowContext(ctx, query, userID, activityType).Scan(
-        &streak.ID,
-        &streak.UserID,
-        &streak.ActivityType,
-        &streak.CurrentStreak,
-        &streak.LongestStreak,
-        &streak.LastActiveDate,
-        &streak.CreatedAt,
-        &streak.UpdatedAt,
-    )
-    if err != nil {
-        if errors.Is(err, sql.ErrNoRows) {
-            return nil, apperrors.StreakNotFound
-        }
-        return nil, apperrors.New("INTERNAL_ERROR", "Failed to get streak")
-    }
-    return &streak, nil
+// Upsert inserts or updates a streak record.
+func (r *StreakRepository) Upsert(ctx context.Context, s *domainStreaks.Streak) error {
+	query := `
+		INSERT INTO streaks (streak_id, couple_id, activity_type, current_streak, longest_streak,
+		                     last_completed_date, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		ON CONFLICT (couple_id, activity_type)
+		DO UPDATE SET
+		  current_streak      = EXCLUDED.current_streak,
+		  longest_streak      = EXCLUDED.longest_streak,
+		  last_completed_date = EXCLUDED.last_completed_date,
+		  updated_at          = EXCLUDED.updated_at
+	`
+	_, err := r.db.ExecContext(ctx, query,
+		s.StreakID,
+		s.CoupleID,
+		s.ActivityType,
+		s.CurrentStreak,
+		s.LongestStreak,
+		s.LastCompletedDate,
+		s.CreatedAt,
+		s.UpdatedAt,
+	)
+	if err != nil {
+		return apperrors.New("INTERNAL_ERROR", "Failed to upsert streak")
+	}
+	return nil
 }
 
-// Update updates an existing streak
-func (r *StreakRepository) Update(ctx context.Context, streak *streaks.Streak) error {
-    query := `
-        UPDATE streaks
-        SET current_streak = $2, longest_streak = $3, last_active_date = $4, updated_at = $5
-        WHERE id = $1
-    `
-    _, err := r.db.ExecContext(ctx, query,
-        streak.ID,
-        streak.CurrentStreak,
-        streak.LongestStreak,
-        streak.LastActiveDate,
-        streak.UpdatedAt,
-    )
-    if err != nil {
-        return apperrors.New("INTERNAL_ERROR", "Failed to update streak")
-    }
-    return nil
+// RecordLog records that a user has completed an activity for a specific date.
+// Uses INSERT ... ON CONFLICT DO NOTHING for idempotency.
+func (r *StreakRepository) RecordLog(ctx context.Context, coupleID uuid.UUID, userID uuid.UUID, activityType string, date time.Time) error {
+	query := `
+		INSERT INTO streak_daily_logs (log_id, couple_id, user_id, activity_type, log_date)
+		VALUES ($1, $2, $3, $4, $5)
+		ON CONFLICT (couple_id, user_id, activity_type, log_date) DO NOTHING
+	`
+	_, err := r.db.ExecContext(ctx, query,
+		uuid.New(),
+		coupleID,
+		userID,
+		activityType,
+		date.Format("2006-01-02"),
+	)
+	if err != nil {
+		return apperrors.New("INTERNAL_ERROR", "Failed to record streak daily log")
+	}
+	return nil
 }
 
-// IncrementStreak increments the streak for a user
-func (r *StreakRepository) IncrementStreak(ctx context.Context, userID uuid.UUID, activityType string) (*streaks.Streak, error) {
-    // Get current streak
-    streak, err := r.GetByUserIDAndActivity(ctx, userID, activityType)
-    if err != nil {
-        if errors.Is(err, apperrors.StreakNotFound) {
-            // Create new streak
-            now := time.Now()
-            newStreak := &streaks.Streak{
-                ID:             uuid.New(),
-                UserID:         userID,
-                ActivityType:   activityType,
-                CurrentStreak:  1,
-                LongestStreak:  1,
-                LastActiveDate: &now,
-                CreatedAt:      now,
-                UpdatedAt:      now,
-            }
-            if err := r.Create(ctx, newStreak); err != nil {
-                return nil, err
-            }
-            return newStreak, nil
-        }
-        return nil, err
-    }
-
-    // Check if we need to reset or increment
-    now := time.Now()
-    if streak.LastActiveDate == nil {
-        streak.CurrentStreak = 1
-    } else {
-        lastActive := *streak.LastActiveDate
-        daysDiff := int(now.Truncate(24 * time.Hour).Sub(lastActive.Truncate(24 * time.Hour)).Hours() / 24)
-
-        if daysDiff == 0 {
-            // Already logged today, no change
-        } else if daysDiff == 1 {
-            // Consecutive day, increment
-            streak.CurrentStreak++
-        } else {
-            // Broken streak, reset
-            streak.CurrentStreak = 1
-        }
-    }
-
-    // Update longest streak if needed
-    if streak.CurrentStreak > streak.LongestStreak {
-        streak.LongestStreak = streak.CurrentStreak
-    }
-
-    streak.LastActiveDate = &now
-    streak.UpdatedAt = now
-
-    if err := r.Update(ctx, streak); err != nil {
-        return nil, err
-    }
-
-    return streak, nil
+// CountLogsForDay returns how many distinct users have logged a given activity for the couple on a date.
+func (r *StreakRepository) CountLogsForDay(ctx context.Context, coupleID uuid.UUID, activityType string, date time.Time) (int, error) {
+	query := `
+		SELECT COUNT(DISTINCT user_id)
+		FROM streak_daily_logs
+		WHERE couple_id = $1 AND activity_type = $2 AND log_date = $3
+	`
+	var count int
+	err := r.db.QueryRowContext(ctx, query,
+		coupleID,
+		activityType,
+		date.Format("2006-01-02"),
+	).Scan(&count)
+	if err != nil {
+		return 0, apperrors.New("INTERNAL_ERROR", "Failed to count daily logs")
+	}
+	return count, nil
 }
 
-// GetByUserID retrieves all streaks for a user
-func (r *StreakRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]streaks.Streak, error) {
-    query := `
-        SELECT id, user_id, activity_type, current_streak, longest_streak, last_active_date, created_at, updated_at
-        FROM streaks
-        WHERE user_id = $1
-        ORDER BY activity_type
-    `
-    rows, err := r.db.QueryContext(ctx, query, userID)
-    if err != nil {
-        return nil, apperrors.New("INTERNAL_ERROR", "Failed to query streaks")
-    }
-    defer rows.Close()
+// GetWeeklyLog returns the last 7 days of log status for a couple and activity.
+// completed = true means both users have logged on that day.
+func (r *StreakRepository) GetWeeklyLog(ctx context.Context, coupleID uuid.UUID, activityType string) ([]domainStreaks.DayLog, error) {
+	query := `
+		SELECT
+		  gs.day::date                                             AS log_date,
+		  COALESCE(COUNT(DISTINCT sdl.user_id) = 2, FALSE)        AS completed
+		FROM generate_series(
+		  CURRENT_DATE - INTERVAL '6 days',
+		  CURRENT_DATE,
+		  INTERVAL '1 day'
+		) AS gs(day)
+		LEFT JOIN streak_daily_logs sdl
+		  ON sdl.log_date   = gs.day::date
+		 AND sdl.couple_id   = $1
+		 AND sdl.activity_type = $2
+		GROUP BY gs.day
+		ORDER BY gs.day
+	`
+	rows, err := r.db.QueryContext(ctx, query, coupleID, activityType)
+	if err != nil {
+		return nil, apperrors.New("INTERNAL_ERROR", "Failed to query weekly log")
+	}
+	defer rows.Close()
 
-    var streakList []streaks.Streak
-    for rows.Next() {
-        var streak streaks.Streak
-        if err := rows.Scan(
-            &streak.ID,
-            &streak.UserID,
-            &streak.ActivityType,
-            &streak.CurrentStreak,
-            &streak.LongestStreak,
-            &streak.LastActiveDate,
-            &streak.CreatedAt,
-            &streak.UpdatedAt,
-        ); err != nil {
-            return nil, apperrors.New("INTERNAL_ERROR", "Failed to scan streak row")
-        }
-        streakList = append(streakList, streak)
-    }
-    if err := rows.Err(); err != nil {
-        return nil, apperrors.New("INTERNAL_ERROR", "Failed to iterate streak rows")
-    }
-    return streakList, nil
+	var logs []domainStreaks.DayLog
+	for rows.Next() {
+		var date time.Time
+		var completed bool
+		if err := rows.Scan(&date, &completed); err != nil {
+			return nil, apperrors.New("INTERNAL_ERROR", "Failed to scan weekly log row")
+		}
+		logs = append(logs, domainStreaks.DayLog{
+			Day:       date.Format("Mon"), // "Mon", "Tue", ...
+			Completed: completed,
+		})
+	}
+	if err := rows.Err(); err != nil {
+		return nil, apperrors.New("INTERNAL_ERROR", "Failed to iterate weekly log rows")
+	}
+	return logs, nil
 }

@@ -40,6 +40,24 @@ services:
       JWT_REFRESH_TOKEN_TTL: 720h
       LOG_LEVEL: debug
       LOG_FORMAT: json
+      # Email/SMTP Configuration
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_USERNAME: amory.dev@gmail.com
+      SMTP_PASSWORD: atfz tqfu agrq mjsb
+      SMTP_FROM: amory.dev@gmail.com
+      SMTP_ENABLED: true
+      # Google OAuth
+      GOOGLE_CLIENT_ID: YOUR_GOOGLE_CLIENT_ID
+      GOOGLE_CLIENT_SECRET: YOUR_GOOGLE_CLIENT_SECRET
+      GOOGLE_REDIRECT_URI: http://localhost:8080/api/v1/auth/google/callback
+      # Feature Flags
+      FEATURE_MOOD_TRACKING: true
+      FEATURE_MEMORIES: true
+      FEATURE_DAILY_SPARKS: true
+      FEATURE_PROMISES: true
+      FEATURE_LOVE_GOALS: true
+      FEATURE_TIME_CAPSULES: true
     ports:
       - "8080:8080"
     depends_on:

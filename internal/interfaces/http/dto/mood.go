@@ -15,6 +15,7 @@ type MoodResponse struct {
     Date        time.Time            `json:"date"`
     MoodType    moods.MoodType       `json:"mood_type"`
     Intensity   int                  `json:"intensity"`
+    MoodEmoji   *string              `json:"mood_emoji,omitempty"`
     Note        *string              `json:"note,omitempty"`
     IsShared    bool                 `json:"is_shared"`
     CreatedAt   time.Time            `json:"created_at"`
@@ -29,6 +30,7 @@ func MoodToResponse(mood *moods.Mood) MoodResponse {
         Date:       mood.Date,
         MoodType:   mood.MoodType,
         Intensity:  mood.Intensity,
+        MoodEmoji:  mood.MoodEmoji,
         Note:       mood.Note,
         IsShared:   mood.IsShared,
         CreatedAt:  mood.CreatedAt,

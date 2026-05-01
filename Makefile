@@ -30,6 +30,18 @@ run: ## Run the application
 	@echo "Running application..."
 	@go run $(MAIN)
 
+swag: ## Regenerate Swagger docs (requires swag: go install github.com/swaggo/swag/cmd/swag@latest)
+	@echo "Regenerating Swagger docs..."
+	@if command -v swag > /dev/null 2>&1; then \
+		swag init -g $(MAIN) --output docs --parseDependency --parseInternal; \
+	elif [ -f $$HOME/go/bin/swag ]; then \
+		$$HOME/go/bin/swag init -g $(MAIN) --output docs --parseDependency --parseInternal; \
+	else \
+		echo "swag not installed. Install with: go install github.com/swaggo/swag/cmd/swag@latest"; \
+		exit 1; \
+	fi
+	@echo "Swagger docs regenerated at docs/"
+
 run-dev: ## Run with air for hot reload (requires air: go install github.com/cosmtrek/air@latest)
 	@echo "Running with hot reload..."
 	@air

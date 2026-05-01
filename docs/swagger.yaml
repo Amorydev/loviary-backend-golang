@@ -160,53 +160,6 @@ definitions:
     - password
     - username
     type: object
-  internal_interfaces_http_handlers.DashboardResponse:
-    properties:
-      couple:
-        properties:
-          couple_id:
-            type: string
-          partner_name:
-            type: string
-          relationship_type:
-            type: string
-        type: object
-      last_updated:
-        type: string
-      mood_history:
-        items:
-          properties:
-            date:
-              type: string
-            intensity:
-              type: integer
-            mood_type:
-              type: string
-          type: object
-        type: array
-      streaks:
-        items:
-          properties:
-            activity_type:
-              type: string
-            current_streak:
-              type: integer
-            longest_streak:
-              type: integer
-            status:
-              type: string
-          type: object
-        type: array
-      todays_mood:
-        properties:
-          intensity:
-            type: integer
-          mood_type:
-            type: string
-        type: object
-      user_id:
-        type: string
-    type: object
   internal_interfaces_http_handlers.ErrorResponse:
     properties:
       code:
@@ -216,22 +169,12 @@ definitions:
         example: validation failed
         type: string
     type: object
-  internal_interfaces_http_handlers.HomeSummaryResponse:
+  internal_interfaces_http_handlers.GoogleMobileRequest:
     properties:
-      active_streaks:
-        type: integer
-      couple_id:
+      google_token:
         type: string
-      longest_streak:
-        type: integer
-      partner_name:
-        type: string
-      relationship_type:
-        type: string
-      todays_mood_intensity:
-        type: integer
-      todays_mood_type:
-        type: string
+    required:
+    - google_token
     type: object
   internal_interfaces_http_handlers.InviteRequest:
     properties:
@@ -445,15 +388,12 @@ definitions:
           $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.ReminderResponse'
         type: array
     type: object
-  internal_interfaces_http_handlers.StreakListResponse:
+  internal_interfaces_http_handlers.ResendVerificationRequest:
     properties:
-      count:
-        example: 2
-        type: integer
-      streaks:
-        items:
-          $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.StreakResponse'
-        type: array
+      email:
+        type: string
+    required:
+    - email
     type: object
   internal_interfaces_http_handlers.SuccessResponse:
     properties:
@@ -589,6 +529,16 @@ definitions:
         maxLength: 50
         type: string
     type: object
+  internal_interfaces_http_handlers.VerifyEmailRequest:
+    properties:
+      code:
+        type: string
+      user_id:
+        type: string
+    required:
+    - code
+    - user_id
+    type: object
   loviary_app_backend_internal_domain_memories.MemoryType:
     enum:
     - date_night
@@ -691,6 +641,60 @@ definitions:
     - StreakStatusAtRisk
     - StreakStatusBroken
     - StreakStatusReset
+  loviary_app_backend_internal_interfaces_http_dto.ChapterInfo:
+    properties:
+      cover_image_url:
+        type: string
+      days_together:
+        type: integer
+      milestone_percent:
+        type: integer
+      milestone_target:
+        type: integer
+      start_date:
+        type: string
+      title:
+        type: string
+    type: object
+  loviary_app_backend_internal_interfaces_http_dto.CoupleInfo:
+    properties:
+      couple_id:
+        type: string
+      partner_avatar_url:
+        type: string
+      partner_name:
+        type: string
+      relationship_type:
+        type: string
+    type: object
+  loviary_app_backend_internal_interfaces_http_dto.DashboardResponse:
+    properties:
+      chapter:
+        $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.ChapterInfo'
+      couple:
+        $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.CoupleInfo'
+      daily_spark:
+        $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.SparkInfo'
+      last_updated:
+        type: string
+      streaks:
+        items:
+          $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.StreakInfo'
+        type: array
+      todays_mood:
+        $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.TodaysMoodInfo'
+      user:
+        $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.UserInfo'
+    type: object
+  loviary_app_backend_internal_interfaces_http_dto.DayLog:
+    properties:
+      completed:
+        description: true = both users logged
+        type: boolean
+      day:
+        description: '"Mon", "Tue", ...'
+        type: string
+    type: object
   loviary_app_backend_internal_interfaces_http_dto.MemoryResponse:
     properties:
       couple_id:
@@ -722,6 +726,15 @@ definitions:
       user_id:
         type: string
     type: object
+  loviary_app_backend_internal_interfaces_http_dto.MoodEntry:
+    properties:
+      icon:
+        type: string
+      intensity:
+        type: integer
+      mood_type:
+        type: string
+    type: object
   loviary_app_backend_internal_interfaces_http_dto.MoodResponse:
     properties:
       created_at:
@@ -734,6 +747,8 @@ definitions:
         type: integer
       is_shared:
         type: boolean
+      mood_emoji:
+        type: string
       mood_type:
         $ref: '#/definitions/loviary_app_backend_internal_domain_moods.MoodType'
       note:
@@ -768,23 +783,69 @@ definitions:
       user_id:
         type: string
     type: object
+  loviary_app_backend_internal_interfaces_http_dto.SparkInfo:
+    properties:
+      category:
+        type: string
+      is_answered:
+        type: boolean
+      question:
+        type: string
+      spark_id:
+        type: string
+    type: object
+  loviary_app_backend_internal_interfaces_http_dto.StreakInfo:
+    properties:
+      activity_type:
+        type: string
+      current_streak:
+        type: integer
+      longest_streak:
+        type: integer
+      status:
+        type: string
+      weekly_log:
+        items:
+          $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.DayLog'
+        type: array
+    type: object
   loviary_app_backend_internal_interfaces_http_dto.StreakResponse:
     properties:
       activity_type:
+        type: string
+      couple_id:
         type: string
       created_at:
         type: string
       current_streak:
         type: integer
-      id:
-        type: string
-      last_active_date:
+      last_completed_date:
         type: string
       longest_streak:
         type: integer
       status:
         $ref: '#/definitions/loviary_app_backend_internal_domain_streaks.StreakStatus'
+      streak_id:
+        type: string
       updated_at:
+        type: string
+      weekly_log:
+        items:
+          $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.DayLog'
+        type: array
+    type: object
+  loviary_app_backend_internal_interfaces_http_dto.TodaysMoodInfo:
+    properties:
+      my_mood:
+        $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodEntry'
+      partner_mood:
+        $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodEntry'
+    type: object
+  loviary_app_backend_internal_interfaces_http_dto.UserInfo:
+    properties:
+      avatar_url:
+        type: string
+      display_name:
         type: string
       user_id:
         type: string
@@ -854,6 +915,104 @@ info:
   title: Loviary API
   version: "1.0"
 paths:
+  /auth/google:
+    get:
+      description: Redirects to Google OAuth authorization page
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Redirect URL
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+      summary: Google OAuth redirect
+      tags:
+      - oauth
+  /auth/google/callback:
+    get:
+      consumes:
+      - application/json
+      description: Handles callback from Google OAuth
+      parameters:
+      - description: Authorization code from Google
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: State parameter for CSRF protection
+        in: query
+        name: state
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful with tokens
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.LoginResponse'
+        "400":
+          description: Missing or invalid code
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+        "401":
+          description: OAuth failed
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+        "409":
+          description: Email exists with different provider
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+      summary: Google OAuth callback
+      tags:
+      - oauth
+  /auth/google/mobile:
+    post:
+      consumes:
+      - application/json
+      description: Exchange Google ID token for app tokens (for mobile apps)
+      parameters:
+      - description: Google ID token from mobile
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_interfaces_http_handlers.GoogleMobileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful with tokens
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.LoginResponse'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+        "401":
+          description: Invalid Google token
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+        "409":
+          description: Email exists with different provider
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+      summary: Google OAuth for mobile
+      tags:
+      - oauth
   /auth/login:
     post:
       consumes:
@@ -1022,6 +1181,78 @@ paths:
       summary: Register a new user
       tags:
       - auth
+  /auth/resend-verification:
+    post:
+      consumes:
+      - application/json
+      description: Resend verification email with new code
+      parameters:
+      - description: Email address
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_interfaces_http_handlers.ResendVerificationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Verification email sent
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.SuccessResponse'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+        "404":
+          description: User not found or already verified
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+        "409":
+          description: Verification pending or resend too fast
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+      summary: Resend verification email
+      tags:
+      - auth
+  /auth/verify-email:
+    post:
+      consumes:
+      - application/json
+      description: Verify user's email with 6-digit verification code
+      parameters:
+      - description: Verification code
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_interfaces_http_handlers.VerifyEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Email verified successfully
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.SuccessResponse'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+        "404":
+          description: Verification not found
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+        "409":
+          description: Email already verified
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+        "410":
+          description: Code expired
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+      summary: Verify email
+      tags:
+      - auth
   /couples/confirm:
     post:
       consumes:
@@ -1159,50 +1390,26 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get aggregated dashboard data including couple info, mood, streaks
+      description: Aggregate endpoint — returns all data needed for the Home screen
+        in one request
       produces:
       - application/json
       responses:
         "200":
-          description: Dashboard data
+          description: OK
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.DashboardResponse'
+            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.DashboardResponse'
         "401":
-          description: Not authenticated
+          description: Unauthorized
           schema:
             $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
         "500":
-          description: Internal server error
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get dashboard
-      tags:
-      - home
-  /home/summary:
-    get:
-      consumes:
-      - application/json
-      description: Get simplified summary for home widget display
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Summary data
-          schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.HomeSummaryResponse'
-        "401":
-          description: Not authenticated
-          schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Get home summary
       tags:
       - home
   /memories:
@@ -1840,9 +2047,9 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get streak for a specific activity type
+      description: Get streak for a specific activity type for the current couple
       parameters:
-      - description: Activity type (e.g., date_night, exercise)
+      - description: Activity type (e.g., mood_log)
         in: path
         name: activity_type
         required: true
@@ -1851,23 +2058,23 @@ paths:
       - application/json
       responses:
         "200":
-          description: Streak data
+          description: OK
           schema:
             $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.StreakResponse'
         "400":
-          description: Activity type required
+          description: Bad Request
           schema:
             $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
         "401":
-          description: Not authenticated
+          description: Unauthorized
           schema:
             $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
-        "404":
-          description: Streak not found
+        "422":
+          description: Unprocessable Entity
           schema:
             $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
         "500":
-          description: Internal server error
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
       security:
@@ -1879,9 +2086,10 @@ paths:
     post:
       consumes:
       - application/json
-      description: Record an activity occurrence and update streak counters
+      description: Manually record an activity for the couple streak. Prefer POST
+        /moods which triggers this automatically.
       parameters:
-      - description: Activity type (e.g., date_night, exercise)
+      - description: Activity type (e.g., mood_log)
         in: path
         name: activity_type
         required: true
@@ -1890,49 +2098,55 @@ paths:
       - application/json
       responses:
         "200":
-          description: Updated streak
+          description: OK
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.StreakResponse'
+            additionalProperties: true
+            type: object
         "400":
-          description: Activity type required
+          description: Bad Request
           schema:
             $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
         "401":
-          description: Not authenticated
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
           schema:
             $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
         "500":
-          description: Internal server error
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Record activity
+      summary: Record activity (deprecated)
       tags:
       - streaks
   /streaks/me:
     get:
       consumes:
       - application/json
-      description: Get all activity streaks for the current user
+      description: Get all activity streaks for the current couple
       produces:
       - application/json
       responses:
         "200":
-          description: List of streaks with count
+          description: OK
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.StreakListResponse'
+            additionalProperties: true
+            type: object
         "401":
-          description: Not authenticated
+          description: Unauthorized
           schema:
             $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
         "500":
-          description: Internal server error
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Get all streaks
+      summary: Get couple streaks
       tags:
       - streaks
   /users/{id}:

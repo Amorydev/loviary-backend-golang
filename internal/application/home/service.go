@@ -1,161 +1,273 @@
 package home
 
 import (
-    "context"
-    "errors"
-    "time"
+	"context"
+	"errors"
+	"time"
 
-    "github.com/google/uuid"
+	"github.com/google/uuid"
 
-    "loviary.app/backend/internal/application/couples"
-    "loviary.app/backend/internal/application/moods"
-    "loviary.app/backend/internal/application/streaks"
-    domainCouples "loviary.app/backend/internal/domain/couples"
-    domainMoods "loviary.app/backend/internal/domain/moods"
-    domainStreaks "loviary.app/backend/internal/domain/streaks"
-    apperrors "loviary.app/backend/pkg/errors"
+	appChapters "loviary.app/backend/internal/application/chapters"
+	appSparks "loviary.app/backend/internal/application/sparks"
+	"loviary.app/backend/internal/application/couples"
+	"loviary.app/backend/internal/application/moods"
+	"loviary.app/backend/internal/application/streaks"
+	"loviary.app/backend/internal/application/users"
+	domainMoods "loviary.app/backend/internal/domain/moods"
+	domainSparks "loviary.app/backend/internal/domain/sparks"
+	domainStreaks "loviary.app/backend/internal/domain/streaks"
+	domainUsers "loviary.app/backend/internal/domain/users"
+	apperrors "loviary.app/backend/pkg/errors"
 )
 
-// Service aggregates data for the home dashboard
+// Service aggregates data for the home dashboard.
 type Service struct {
-    coupleService *couples.Service
-    moodService   *moods.Service
-    streakService *streaks.Service
+	userService    *users.Service
+	coupleService  *couples.Service
+	moodService    *moods.Service
+	streakService  *streaks.Service
+	chapterService *appChapters.Service
+	sparkService   *appSparks.Service
 }
 
-// NewService creates a new home service
+// NewService creates a new home service.
 func NewService(
-    coupleService *couples.Service,
-    moodService *moods.Service,
-    streakService *streaks.Service,
+	userService *users.Service,
+	coupleService *couples.Service,
+	moodService *moods.Service,
+	streakService *streaks.Service,
+	chapterService *appChapters.Service,
+	sparkService *appSparks.Service,
 ) *Service {
-    return &Service{
-        coupleService: coupleService,
-        moodService:   moodService,
-        streakService: streakService,
-    }
+	return &Service{
+		userService:    userService,
+		coupleService:  coupleService,
+		moodService:    moodService,
+		streakService:  streakService,
+		chapterService: chapterService,
+		sparkService:   sparkService,
+	}
 }
 
-// DashboardData represents aggregated dashboard data
+// --- Internal summary types ---
+
+// UserSummary holds the current user's display info.
+type UserSummary struct {
+	UserID      uuid.UUID
+	DisplayName string
+	AvatarURL   string
+}
+
+// CoupleSummary holds couple + partner info.
+type CoupleSummary struct {
+	CoupleID         uuid.UUID
+	PartnerName      string
+	PartnerAvatarURL string
+	RelationshipType string
+}
+
+// ChapterSummary holds current chapter display info.
+type ChapterSummary struct {
+	Title            string
+	DaysTogether     int
+	MilestoneTarget  int
+	MilestonePercent int
+	StartDate        string
+	CoverImageURL    string
+}
+
+// MoodSummary holds a single mood entry for the dashboard.
+type MoodSummary struct {
+	MoodType  string
+	Intensity int
+	Icon      string
+}
+
+// TodaysMoodSummary holds both moods for today.
+type TodaysMoodSummary struct {
+	MyMood      *MoodSummary
+	PartnerMood *MoodSummary
+}
+
+// StreakSummary holds streak info with weekly log.
+type StreakSummary struct {
+	ActivityType  string
+	CurrentStreak int
+	LongestStreak int
+	Status        string
+	WeeklyLog     []domainStreaks.DayLog
+}
+
+// SparkSummary holds daily spark info.
+type SparkSummary struct {
+	SparkID    uuid.UUID
+	Question   string
+	Category   string
+	IsAnswered bool
+}
+
+// DashboardData is the aggregated dashboard payload.
 type DashboardData struct {
-    UserID           uuid.UUID             `json:"user_id"`
-    Couple           *domainCouples.Couple `json:"couple,omitempty"`
-    TodaysMood       *domainMoods.Mood     `json:"todays_mood,omitempty"`
-    MoodHistory      []domainMoods.Mood    `json:"mood_history,omitempty"`
-    Streaks          []domainStreaks.Streak `json:"streaks,omitempty"`
-    RecentMemories   interface{}           `json:"recent_memories,omitempty"` // Will be added when memories service is ready
-    UpcomingReminders interface{}          `json:"upcoming_reminders,omitempty"` // Will be added when reminders service is ready
-    LastUpdated      time.Time             `json:"last_updated"`
+	User        UserSummary
+	Couple      *CoupleSummary
+	Chapter     *ChapterSummary
+	TodaysMood  TodaysMoodSummary
+	Streaks     []StreakSummary
+	DailySpark  *SparkSummary
+	LastUpdated time.Time
 }
 
-// GetDashboard retrieves aggregated data for the user's home dashboard
+// GetDashboard retrieves all data needed for the home dashboard in a single call.
 func (s *Service) GetDashboard(ctx context.Context, userID uuid.UUID) (*DashboardData, error) {
-    data := &DashboardData{
-        UserID: userID,
-    }
+	data := &DashboardData{
+		LastUpdated: time.Now(),
+	}
 
-    // Get user's active couple
-    couple, err := s.coupleService.GetActiveByUserID(ctx, userID)
-    if err != nil {
-        // No active couple is not an error, just nil
-        if !errors.Is(err, apperrors.NoActiveCouple) && !errors.Is(err, apperrors.ErrNotFound) {
-            return nil, apperrors.New("INTERNAL_ERROR", "Failed to get couple")
-        }
-    } else {
-        data.Couple = couple
-    }
+	// ── 1. Current user ──────────────────────────────────────────────────────
+	user, err := s.userService.GetByID(ctx, userID)
+	if err != nil {
+		return nil, apperrors.New("INTERNAL_ERROR", "Failed to get user")
+	}
+	data.User = UserSummary{
+		UserID:      user.ID,
+		DisplayName: user.DisplayName(),
+		AvatarURL:   avatarURL(user),
+	}
 
-    // Get today's mood
-    todaysMood, err := s.moodService.GetTodaysMood(ctx, userID)
-    if err != nil {
-        // Not an error if no mood logged today
-        if !errors.Is(err, apperrors.ErrNotFound) {
-            return nil, apperrors.New("INTERNAL_ERROR", "Failed to get today's mood")
-        }
-    } else {
-        data.TodaysMood = todaysMood
-    }
+	// ── 2. Active couple ─────────────────────────────────────────────────────
+	couple, err := s.coupleService.GetActiveByUserID(ctx, userID)
+	if err != nil {
+		if errors.Is(err, apperrors.NoActiveCouple) || errors.Is(err, apperrors.ErrNotFound) {
+			// No couple — return partial dashboard
+			return data, nil
+		}
+		return nil, apperrors.New("INTERNAL_ERROR", "Failed to get couple")
+	}
 
-    // Get mood history (last 7 days)
-    endDate := time.Now()
-    startDate := endDate.Add(-7 * 24 * time.Hour)
-    moodHistory, err := s.moodService.GetMoodsByUser(ctx, userID, startDate, endDate)
-    if err != nil {
-        return nil, apperrors.New("INTERNAL_ERROR", "Failed to get mood history")
-    }
-    data.MoodHistory = moodHistory
+	// ── 3. Partner info ──────────────────────────────────────────────────────
+	partnerID, ok := couple.GetPartnerID(userID)
+	if ok {
+		partner, err := s.userService.GetByID(ctx, partnerID)
+		if err == nil {
+			data.Couple = &CoupleSummary{
+				CoupleID:         couple.CoupleID,
+				PartnerName:      partner.DisplayName(),
+				PartnerAvatarURL: avatarURL(partner),
+				RelationshipType: string(couple.RelationshipType),
+			}
+		}
+	}
+	if data.Couple == nil {
+		data.Couple = &CoupleSummary{
+			CoupleID:         couple.CoupleID,
+			RelationshipType: string(couple.RelationshipType),
+		}
+	}
 
-    // Get all streaks
-    streaks, err := s.streakService.GetAllStreaks(ctx, userID)
-    if err != nil {
-        return nil, apperrors.New("INTERNAL_ERROR", "Failed to get streaks")
-    }
-    data.Streaks = streaks
+	// ── 4. Chapter ───────────────────────────────────────────────────────────
+	if couple.RelationshipStartDate != nil {
+		daysTogether := appChapters.CalculateDaysTogether(*couple.RelationshipStartDate)
+		chapterView, err := s.chapterService.GetCurrentChapter(ctx, couple.CoupleID, daysTogether)
+		if err == nil {
+			data.Chapter = &ChapterSummary{
+				Title:            chapterView.Definition.Title,
+				DaysTogether:     daysTogether,
+				MilestoneTarget:  chapterView.Definition.GetMilestoneTarget(),
+				MilestonePercent: chapterView.MilestonePercent,
+				StartDate:        couple.RelationshipStartDate.Format("2006-01-02"),
+				CoverImageURL:    chapterView.Definition.GetCoverURL(),
+			}
+		}
+	}
 
-    // TODO: Add recent memories and upcoming reminders when those services are integrated
+	// ── 5. Today's mood (my mood + partner mood) ─────────────────────────────
+	myMood, err := s.moodService.GetTodaysMood(ctx, userID)
+	if err == nil && myMood != nil {
+		data.TodaysMood.MyMood = toMoodSummary(myMood)
+	}
+	if ok {
+		partnerMood, err := s.moodService.GetTodaysMood(ctx, partnerID)
+		if err == nil && partnerMood != nil && !partnerMood.IsShared {
+			data.TodaysMood.PartnerMood = toMoodSummary(partnerMood)
+		}
+		// partner_mood = nil if not logged today or is_private
+		if partnerMood != nil && partnerMood.IsShared {
+			data.TodaysMood.PartnerMood = nil
+		}
+	}
 
-    data.LastUpdated = time.Now()
+	// ── 6. Streaks ───────────────────────────────────────────────────────────
+	streakList, err := s.streakService.GetAllStreaks(ctx, couple.CoupleID)
+	if err == nil {
+		for _, st := range streakList {
+			data.Streaks = append(data.Streaks, StreakSummary{
+				ActivityType:  st.ActivityType,
+				CurrentStreak: st.CurrentStreak,
+				LongestStreak: st.LongestStreak,
+				Status:        string(st.GetStreakStatus()),
+				WeeklyLog:     st.WeeklyLog,
+			})
+		}
+	}
 
-    return data, nil
+	// ── 7. Daily spark ───────────────────────────────────────────────────────
+	spark, err := s.sparkService.GetTodaySpark(ctx, couple.CoupleID, userID)
+	if err == nil && spark != nil {
+		data.DailySpark = toSparkSummary(spark)
+	}
+
+	return data, nil
 }
 
-// HomeSummary represents a summary for the home endpoint
-type HomeSummary struct {
-    CoupleID         *uuid.UUID          `json:"couple_id,omitempty"`
-    PartnerName      *string             `json:"partner_name,omitempty"`
-    RelationshipType *string             `json:"relationship_type,omitempty"`
-    TodaysMoodType  *string             `json:"todays_mood_type,omitempty"`
-    TodaysMoodIntensity *int            `json:"todays_mood_intensity,omitempty"`
-    ActiveStreaks   int                 `json:"active_streaks"`
-    LongestStreak   int                 `json:"longest_streak"`
-    RecentActivity  []string            `json:"recent_activity,omitempty"`
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+func avatarURL(u *domainUsers.User) string {
+	if u.AvatarURL != nil {
+		return *u.AvatarURL
+	}
+	return ""
 }
 
-// GetSummary retrieves a simplified summary for the home endpoint
-func (s *Service) GetSummary(ctx context.Context, userID uuid.UUID) (*HomeSummary, error) {
-    summary := &HomeSummary{}
+func toMoodSummary(m *domainMoods.Mood) *MoodSummary {
+	icon := ""
+	if m.MoodEmoji != nil {
+		icon = *m.MoodEmoji
+	} else {
+		icon = moodDefaultIcon(string(m.MoodType))
+	}
+	return &MoodSummary{
+		MoodType:  string(m.MoodType),
+		Intensity: m.Intensity,
+		Icon:      icon,
+	}
+}
 
-    // Get couple info
-    couple, err := s.coupleService.GetActiveByUserID(ctx, userID)
-    if err != nil {
-        if !errors.Is(err, apperrors.NoActiveCouple) && !errors.Is(err, apperrors.ErrNotFound) {
-            return nil, apperrors.New("INTERNAL_ERROR", "Failed to get couple")
-        }
-    } else {
-        summary.CoupleID = &couple.CoupleID
-        summary.RelationshipType = (*string)(&couple.RelationshipType)
-        // TODO: Get partner name when user service is available
-    }
+// moodDefaultIcon returns a default emoji when mood_emoji is not set.
+func moodDefaultIcon(moodType string) string {
+	icons := map[string]string{
+		"happy":     "😊",
+		"sad":       "😢",
+		"angry":     "😠",
+		"anxious":   "😰",
+		"calm":      "😌",
+		"excited":   "🥳",
+		"tired":     "😴",
+		"love":      "🥰",
+		"stressed":  "😤",
+		"grateful":  "🙏",
+		"neutral":   "😐",
+	}
+	if icon, ok := icons[moodType]; ok {
+		return icon
+	}
+	return "😶"
+}
 
-    // Get today's mood
-    todaysMood, err := s.moodService.GetTodaysMood(ctx, userID)
-    if err != nil {
-        if !errors.Is(err, apperrors.ErrNotFound) {
-            return nil, apperrors.New("INTERNAL_ERROR", "Failed to get today's mood")
-        }
-    } else {
-        summary.TodaysMoodType = (*string)(&todaysMood.MoodType)
-        summary.TodaysMoodIntensity = &todaysMood.Intensity
-    }
-
-    // Get streaks
-    allStreaks, err := s.streakService.GetAllStreaks(ctx, userID)
-    if err != nil {
-        return nil, apperrors.New("INTERNAL_ERROR", "Failed to get streaks")
-    }
-
-    activeCount := 0
-    longest := 0
-    for _, streak := range allStreaks {
-        if streak.CurrentStreak > 0 {
-            activeCount++
-        }
-        if streak.LongestStreak > longest {
-            longest = streak.LongestStreak
-        }
-    }
-    summary.ActiveStreaks = activeCount
-    summary.LongestStreak = longest
-
-    return summary, nil
+func toSparkSummary(spark *domainSparks.DailySpark) *SparkSummary {
+	return &SparkSummary{
+		SparkID:    spark.SparkID,
+		Question:   spark.Question,
+		Category:   spark.Category,
+		IsAnswered: spark.IsAnswered,
+	}
 }

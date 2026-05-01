@@ -1,204 +1,135 @@
 package handlers
 
 import (
-    "net/http"
-    "time"
+	"net/http"
 
-    "github.com/gin-gonic/gin"
-    "github.com/google/uuid"
+	"github.com/gin-gonic/gin"
 
-    appHome "loviary.app/backend/internal/application/home"
-    "loviary.app/backend/internal/interfaces/http/middleware"
-    apperrors "loviary.app/backend/pkg/errors"
+	appHome "loviary.app/backend/internal/application/home"
+	"loviary.app/backend/internal/interfaces/http/dto"
+	"loviary.app/backend/internal/interfaces/http/middleware"
+	apperrors "loviary.app/backend/pkg/errors"
 )
 
-// HomeHandler handles home/dashboard HTTP requests
+// HomeHandler handles home/dashboard HTTP requests.
 type HomeHandler struct {
-    homeService *appHome.Service
+	homeService *appHome.Service
 }
 
-// NewHomeHandler creates a new home handler
+// NewHomeHandler creates a new home handler.
 func NewHomeHandler(homeService *appHome.Service) *HomeHandler {
-    return &HomeHandler{homeService: homeService}
+	return &HomeHandler{homeService: homeService}
 }
 
-// DashboardResponse represents dashboard response
-type DashboardResponse struct {
-    UserID           uuid.UUID             `json:"user_id"`
-    Couple           *struct {
-        CoupleID         uuid.UUID  `json:"couple_id"`
-        RelationshipType string     `json:"relationship_type"`
-        PartnerName      *string    `json:"partner_name,omitempty"`
-    } `json:"couple,omitempty"`
-    TodaysMood       *struct {
-        MoodType   string `json:"mood_type"`
-        Intensity  int    `json:"intensity"`
-    } `json:"todays_mood,omitempty"`
-    MoodHistory      []struct {
-        Date       string    `json:"date"`
-        MoodType   string    `json:"mood_type"`
-        Intensity  int       `json:"intensity"`
-    } `json:"mood_history,omitempty"`
-    Streaks          []struct {
-        ActivityType   string `json:"activity_type"`
-        CurrentStreak  int    `json:"current_streak"`
-        LongestStreak  int    `json:"longest_streak"`
-        Status         string `json:"status"`
-    } `json:"streaks,omitempty"`
-    LastUpdated      time.Time `json:"last_updated"`
-}
-
-// GetDashboard retrieves aggregated dashboard data
-// @Summary Get dashboard
-// @Description Get aggregated dashboard data including couple info, mood, streaks
-// @Tags home
-// @Accept  json
-// @Produce  json
-// @Security BearerAuth
-// @Success  200  {object}  handlers.DashboardResponse "Dashboard data"
-// @Failure  401  {object}  handlers.ErrorResponse "Not authenticated"
-// @Failure  500  {object}  handlers.ErrorResponse "Internal server error"
-// @Router   /home [get]
+// GetDashboard retrieves aggregated dashboard data.
+// @Summary      Get dashboard
+// @Description  Aggregate endpoint — returns all data needed for the Home screen in one request
+// @Tags         home
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  dto.DashboardResponse
+// @Failure      401  {object}  handlers.ErrorResponse
+// @Failure      500  {object}  handlers.ErrorResponse
+// @Router       /home [get]
 func (h *HomeHandler) GetDashboard(c *gin.Context) {
-    userID, exists := middleware.GetUserID(c)
-    if !exists {
-        c.JSON(http.StatusUnauthorized, apperrors.ErrUnauthorized)
-        return
-    }
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, apperrors.ErrUnauthorized)
+		return
+	}
 
-    data, err := h.homeService.GetDashboard(c.Request.Context(), userID)
-    if err != nil {
-        c.Error(err)
-        return
-    }
+	data, err := h.homeService.GetDashboard(c.Request.Context(), userID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
 
-    // Transform couple data
-    var coupleResp *struct {
-        CoupleID         uuid.UUID  `json:"couple_id"`
-        RelationshipType string     `json:"relationship_type"`
-        PartnerName      *string    `json:"partner_name,omitempty"`
-    }
-    if data.Couple != nil {
-        coupleResp = &struct {
-            CoupleID         uuid.UUID  `json:"couple_id"`
-            RelationshipType string     `json:"relationship_type"`
-            PartnerName      *string    `json:"partner_name,omitempty"`
-        }{
-            CoupleID:         data.Couple.CoupleID,
-            RelationshipType: string(data.Couple.RelationshipType),
-        }
-    }
-
-    // Transform mood history
-    moodHistory := make([]struct {
-        Date       string    `json:"date"`
-        MoodType   string    `json:"mood_type"`
-        Intensity  int       `json:"intensity"`
-    }, len(data.MoodHistory))
-    for i, mood := range data.MoodHistory {
-        moodHistory[i] = struct {
-            Date       string    `json:"date"`
-            MoodType   string    `json:"mood_type"`
-            Intensity  int       `json:"intensity"`
-        }{
-            Date:       mood.Date.Format("2006-01-02"),
-            MoodType:   string(mood.MoodType),
-            Intensity:  mood.Intensity,
-        }
-    }
-
-    // Transform streaks
-    streaks := make([]struct {
-        ActivityType   string `json:"activity_type"`
-        CurrentStreak  int    `json:"current_streak"`
-        LongestStreak  int    `json:"longest_streak"`
-        Status         string `json:"status"`
-    }, len(data.Streaks))
-    for i, streak := range data.Streaks {
-        streaks[i] = struct {
-            ActivityType   string `json:"activity_type"`
-            CurrentStreak  int    `json:"current_streak"`
-            LongestStreak  int    `json:"longest_streak"`
-            Status         string `json:"status"`
-        }{
-            ActivityType:   streak.ActivityType,
-            CurrentStreak:  streak.CurrentStreak,
-            LongestStreak:  streak.LongestStreak,
-            Status:         string(streak.GetStreakStatus()),
-        }
-    }
-
-    resp := DashboardResponse{
-        UserID:      data.UserID,
-        Couple:      coupleResp,
-        MoodHistory: moodHistory,
-        Streaks:     streaks,
-        LastUpdated: data.LastUpdated,
-    }
-
-    if data.TodaysMood != nil {
-        resp.TodaysMood = &struct {
-            MoodType  string `json:"mood_type"`
-            Intensity int    `json:"intensity"`
-        }{
-            MoodType:  string(data.TodaysMood.MoodType),
-            Intensity: data.TodaysMood.Intensity,
-        }
-    }
-
-    c.JSON(http.StatusOK, resp)
+	resp := mapDashboardToDTO(data)
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": resp})
 }
 
-// HomeSummaryResponse represents a simplified home summary
-type HomeSummaryResponse struct {
-    CoupleID         *uuid.UUID `json:"couple_id,omitempty"`
-    PartnerName      *string    `json:"partner_name,omitempty"`
-    RelationshipType *string    `json:"relationship_type,omitempty"`
-    TodaysMoodType  *string    `json:"todays_mood_type,omitempty"`
-    TodaysMoodIntensity *int   `json:"todays_mood_intensity,omitempty"`
-    ActiveStreaks   int        `json:"active_streaks"`
-    LongestStreak   int        `json:"longest_streak"`
+// mapDashboardToDTO converts the service DashboardData into the HTTP DTO.
+func mapDashboardToDTO(data *appHome.DashboardData) dto.DashboardResponse {
+	resp := dto.DashboardResponse{
+		User: dto.UserInfo{
+			UserID:      data.User.UserID.String(),
+			DisplayName: data.User.DisplayName,
+			AvatarURL:   data.User.AvatarURL,
+		},
+		TodaysMood:  mapTodaysMood(data.TodaysMood),
+		Streaks:     mapStreaks(data.Streaks),
+		LastUpdated: data.LastUpdated.Format("2006-01-02T15:04:05Z07:00"),
+	}
+
+	if data.Couple != nil {
+		resp.Couple = &dto.CoupleInfo{
+			CoupleID:         data.Couple.CoupleID.String(),
+			PartnerName:      data.Couple.PartnerName,
+			PartnerAvatarURL: data.Couple.PartnerAvatarURL,
+			RelationshipType: data.Couple.RelationshipType,
+		}
+	}
+
+	if data.Chapter != nil {
+		resp.Chapter = &dto.ChapterInfo{
+			Title:            data.Chapter.Title,
+			DaysTogether:     data.Chapter.DaysTogether,
+			MilestoneTarget:  data.Chapter.MilestoneTarget,
+			MilestonePercent: data.Chapter.MilestonePercent,
+			StartDate:        data.Chapter.StartDate,
+			CoverImageURL:    data.Chapter.CoverImageURL,
+		}
+	}
+
+	if data.DailySpark != nil {
+		resp.DailySpark = &dto.SparkInfo{
+			SparkID:    data.DailySpark.SparkID.String(),
+			Question:   data.DailySpark.Question,
+			Category:   data.DailySpark.Category,
+			IsAnswered: data.DailySpark.IsAnswered,
+		}
+	}
+
+	return resp
 }
 
-// GetSummary retrieves a simplified home summary
-// @Summary Get home summary
-// @Description Get simplified summary for home widget display
-// @Tags home
-// @Accept  json
-// @Produce  json
-// @Security BearerAuth
-// @Success  200  {object}  handlers.HomeSummaryResponse "Summary data"
-// @Failure  401  {object}  handlers.ErrorResponse "Not authenticated"
-// @Failure  500  {object}  handlers.ErrorResponse "Internal server error"
-// @Router   /home/summary [get]
-func (h *HomeHandler) GetSummary(c *gin.Context) {
-    userID, exists := middleware.GetUserID(c)
-    if !exists {
-        c.JSON(http.StatusUnauthorized, apperrors.ErrUnauthorized)
-        return
-    }
+func mapTodaysMood(m appHome.TodaysMoodSummary) dto.TodaysMoodInfo {
+	result := dto.TodaysMoodInfo{}
+	if m.MyMood != nil {
+		result.MyMood = &dto.MoodEntry{
+			MoodType:  m.MyMood.MoodType,
+			Intensity: m.MyMood.Intensity,
+			Icon:      m.MyMood.Icon,
+		}
+	}
+	if m.PartnerMood != nil {
+		result.PartnerMood = &dto.MoodEntry{
+			MoodType:  m.PartnerMood.MoodType,
+			Intensity: m.PartnerMood.Intensity,
+			Icon:      m.PartnerMood.Icon,
+		}
+	}
+	return result
+}
 
-    summary, err := h.homeService.GetSummary(c.Request.Context(), userID)
-    if err != nil {
-        c.Error(err)
-        return
-    }
-
-    resp := HomeSummaryResponse{
-        ActiveStreaks:  summary.ActiveStreaks,
-        LongestStreak:  summary.LongestStreak,
-    }
-
-    if summary.CoupleID != nil {
-        resp.CoupleID = summary.CoupleID
-        resp.RelationshipType = summary.RelationshipType
-        resp.PartnerName = summary.PartnerName
-    }
-
-    if summary.TodaysMoodType != nil {
-        resp.TodaysMoodType = summary.TodaysMoodType
-        resp.TodaysMoodIntensity = summary.TodaysMoodIntensity
-    }
-
-    c.JSON(http.StatusOK, resp)
+func mapStreaks(streaks []appHome.StreakSummary) []dto.StreakInfo {
+	if len(streaks) == 0 {
+		return []dto.StreakInfo{}
+	}
+	result := make([]dto.StreakInfo, len(streaks))
+	for i, s := range streaks {
+		weeklyLog := make([]dto.DayLog, len(s.WeeklyLog))
+		for j, d := range s.WeeklyLog {
+			weeklyLog[j] = dto.DayLog{Day: d.Day, Completed: d.Completed}
+		}
+		result[i] = dto.StreakInfo{
+			ActivityType:  s.ActivityType,
+			CurrentStreak: s.CurrentStreak,
+			LongestStreak: s.LongestStreak,
+			Status:        s.Status,
+			WeeklyLog:     weeklyLog,
+		}
+	}
+	return result
 }

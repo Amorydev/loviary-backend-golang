@@ -23,6 +23,155 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/google": {
+            "get": {
+                "description": "Redirects to Google OAuth authorization page",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "oauth"
+                ],
+                "summary": "Google OAuth redirect",
+                "responses": {
+                    "200": {
+                        "description": "Redirect URL",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/google/callback": {
+            "get": {
+                "description": "Handles callback from Google OAuth",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "oauth"
+                ],
+                "summary": "Google OAuth callback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization code from Google",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "State parameter for CSRF protection",
+                        "name": "state",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login successful with tokens",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Missing or invalid code",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "OAuth failed",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Email exists with different provider",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/google/mobile": {
+            "post": {
+                "description": "Exchange Google ID token for app tokens (for mobile apps)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "oauth"
+                ],
+                "summary": "Google OAuth for mobile",
+                "parameters": [
+                    {
+                        "description": "Google ID token from mobile",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.GoogleMobileRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login successful with tokens",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid Google token",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Email exists with different provider",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "Authenticate user with email and password, return access and refresh tokens",
@@ -282,6 +431,116 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/resend-verification": {
+            "post": {
+                "description": "Resend verification email with new code",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Resend verification email",
+                "parameters": [
+                    {
+                        "description": "Email address",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ResendVerificationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification email sent",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found or already verified",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Verification pending or resend too fast",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/verify-email": {
+            "post": {
+                "description": "Verify user's email with 6-digit verification code",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Verify email",
+                "parameters": [
+                    {
+                        "description": "Verification code",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.VerifyEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Email verified successfully",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Verification not found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Email already verified",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "410": {
+                        "description": "Code expired",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/couples/confirm": {
             "post": {
                 "security": [
@@ -499,7 +758,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get aggregated dashboard data including couple info, mood, streaks",
+                "description": "Aggregate endpoint — returns all data needed for the Home screen in one request",
                 "consumes": [
                     "application/json"
                 ],
@@ -512,59 +771,19 @@ const docTemplate = `{
                 "summary": "Get dashboard",
                 "responses": {
                     "200": {
-                        "description": "Dashboard data",
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.DashboardResponse"
+                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.DashboardResponse"
                         }
                     },
                     "401": {
-                        "description": "Not authenticated",
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/home/summary": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get simplified summary for home widget display",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "home"
-                ],
-                "summary": "Get home summary",
-                "responses": {
-                    "200": {
-                        "description": "Summary data",
-                        "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.HomeSummaryResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Not authenticated",
-                        "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
                         }
@@ -1567,7 +1786,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get all activity streaks for the current user",
+                "description": "Get all activity streaks for the current couple",
                 "consumes": [
                     "application/json"
                 ],
@@ -1577,22 +1796,23 @@ const docTemplate = `{
                 "tags": [
                     "streaks"
                 ],
-                "summary": "Get all streaks",
+                "summary": "Get couple streaks",
                 "responses": {
                     "200": {
-                        "description": "List of streaks with count",
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.StreakListResponse"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "401": {
-                        "description": "Not authenticated",
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
                         }
@@ -1607,7 +1827,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get streak for a specific activity type",
+                "description": "Get streak for a specific activity type for the current couple",
                 "consumes": [
                     "application/json"
                 ],
@@ -1621,7 +1841,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Activity type (e.g., date_night, exercise)",
+                        "description": "Activity type (e.g., mood_log)",
                         "name": "activity_type",
                         "in": "path",
                         "required": true
@@ -1629,31 +1849,31 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Streak data",
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.StreakResponse"
                         }
                     },
                     "400": {
-                        "description": "Activity type required",
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "Not authenticated",
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Streak not found",
+                    "422": {
+                        "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
                         }
@@ -1668,7 +1888,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Record an activity occurrence and update streak counters",
+                "description": "Manually record an activity for the couple streak. Prefer POST /moods which triggers this automatically.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1678,11 +1898,11 @@ const docTemplate = `{
                 "tags": [
                     "streaks"
                 ],
-                "summary": "Record activity",
+                "summary": "Record activity (deprecated)",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Activity type (e.g., date_night, exercise)",
+                        "description": "Activity type (e.g., mood_log)",
                         "name": "activity_type",
                         "in": "path",
                         "required": true
@@ -1690,25 +1910,32 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Updated streak",
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.StreakResponse"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Activity type required",
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "Not authenticated",
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
                         }
@@ -2266,79 +2493,6 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.DashboardResponse": {
-            "type": "object",
-            "properties": {
-                "couple": {
-                    "type": "object",
-                    "properties": {
-                        "couple_id": {
-                            "type": "string"
-                        },
-                        "partner_name": {
-                            "type": "string"
-                        },
-                        "relationship_type": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "last_updated": {
-                    "type": "string"
-                },
-                "mood_history": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "date": {
-                                "type": "string"
-                            },
-                            "intensity": {
-                                "type": "integer"
-                            },
-                            "mood_type": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                },
-                "streaks": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "activity_type": {
-                                "type": "string"
-                            },
-                            "current_streak": {
-                                "type": "integer"
-                            },
-                            "longest_streak": {
-                                "type": "integer"
-                            },
-                            "status": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                },
-                "todays_mood": {
-                    "type": "object",
-                    "properties": {
-                        "intensity": {
-                            "type": "integer"
-                        },
-                        "mood_type": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
         "internal_interfaces_http_handlers.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -2352,28 +2506,13 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.HomeSummaryResponse": {
+        "internal_interfaces_http_handlers.GoogleMobileRequest": {
             "type": "object",
+            "required": [
+                "google_token"
+            ],
             "properties": {
-                "active_streaks": {
-                    "type": "integer"
-                },
-                "couple_id": {
-                    "type": "string"
-                },
-                "longest_streak": {
-                    "type": "integer"
-                },
-                "partner_name": {
-                    "type": "string"
-                },
-                "relationship_type": {
-                    "type": "string"
-                },
-                "todays_mood_intensity": {
-                    "type": "integer"
-                },
-                "todays_mood_type": {
+                "google_token": {
                     "type": "string"
                 }
             }
@@ -2695,18 +2834,14 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.StreakListResponse": {
+        "internal_interfaces_http_handlers.ResendVerificationRequest": {
             "type": "object",
+            "required": [
+                "email"
+            ],
             "properties": {
-                "count": {
-                    "type": "integer",
-                    "example": 2
-                },
-                "streaks": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.StreakResponse"
-                    }
+                "email": {
+                    "type": "string"
                 }
             }
         },
@@ -2909,6 +3044,21 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_interfaces_http_handlers.VerifyEmailRequest": {
+            "type": "object",
+            "required": [
+                "code",
+                "user_id"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "loviary_app_backend_internal_domain_memories.MemoryType": {
             "type": "string",
             "enum": [
@@ -3032,6 +3182,88 @@ const docTemplate = `{
                 "StreakStatusReset"
             ]
         },
+        "loviary_app_backend_internal_interfaces_http_dto.ChapterInfo": {
+            "type": "object",
+            "properties": {
+                "cover_image_url": {
+                    "type": "string"
+                },
+                "days_together": {
+                    "type": "integer"
+                },
+                "milestone_percent": {
+                    "type": "integer"
+                },
+                "milestone_target": {
+                    "type": "integer"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "loviary_app_backend_internal_interfaces_http_dto.CoupleInfo": {
+            "type": "object",
+            "properties": {
+                "couple_id": {
+                    "type": "string"
+                },
+                "partner_avatar_url": {
+                    "type": "string"
+                },
+                "partner_name": {
+                    "type": "string"
+                },
+                "relationship_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "loviary_app_backend_internal_interfaces_http_dto.DashboardResponse": {
+            "type": "object",
+            "properties": {
+                "chapter": {
+                    "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.ChapterInfo"
+                },
+                "couple": {
+                    "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.CoupleInfo"
+                },
+                "daily_spark": {
+                    "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.SparkInfo"
+                },
+                "last_updated": {
+                    "type": "string"
+                },
+                "streaks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.StreakInfo"
+                    }
+                },
+                "todays_mood": {
+                    "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.TodaysMoodInfo"
+                },
+                "user": {
+                    "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.UserInfo"
+                }
+            }
+        },
+        "loviary_app_backend_internal_interfaces_http_dto.DayLog": {
+            "type": "object",
+            "properties": {
+                "completed": {
+                    "description": "true = both users logged",
+                    "type": "boolean"
+                },
+                "day": {
+                    "description": "\"Mon\", \"Tue\", ...",
+                    "type": "string"
+                }
+            }
+        },
         "loviary_app_backend_internal_interfaces_http_dto.MemoryResponse": {
             "type": "object",
             "properties": {
@@ -3079,6 +3311,20 @@ const docTemplate = `{
                 }
             }
         },
+        "loviary_app_backend_internal_interfaces_http_dto.MoodEntry": {
+            "type": "object",
+            "properties": {
+                "icon": {
+                    "type": "string"
+                },
+                "intensity": {
+                    "type": "integer"
+                },
+                "mood_type": {
+                    "type": "string"
+                }
+            }
+        },
         "loviary_app_backend_internal_interfaces_http_dto.MoodResponse": {
             "type": "object",
             "properties": {
@@ -3096,6 +3342,9 @@ const docTemplate = `{
                 },
                 "is_shared": {
                     "type": "boolean"
+                },
+                "mood_emoji": {
+                    "type": "string"
                 },
                 "mood_type": {
                     "$ref": "#/definitions/loviary_app_backend_internal_domain_moods.MoodType"
@@ -3149,10 +3398,53 @@ const docTemplate = `{
                 }
             }
         },
+        "loviary_app_backend_internal_interfaces_http_dto.SparkInfo": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "is_answered": {
+                    "type": "boolean"
+                },
+                "question": {
+                    "type": "string"
+                },
+                "spark_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "loviary_app_backend_internal_interfaces_http_dto.StreakInfo": {
+            "type": "object",
+            "properties": {
+                "activity_type": {
+                    "type": "string"
+                },
+                "current_streak": {
+                    "type": "integer"
+                },
+                "longest_streak": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "weekly_log": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.DayLog"
+                    }
+                }
+            }
+        },
         "loviary_app_backend_internal_interfaces_http_dto.StreakResponse": {
             "type": "object",
             "properties": {
                 "activity_type": {
+                    "type": "string"
+                },
+                "couple_id": {
                     "type": "string"
                 },
                 "created_at": {
@@ -3161,10 +3453,7 @@ const docTemplate = `{
                 "current_streak": {
                     "type": "integer"
                 },
-                "id": {
-                    "type": "string"
-                },
-                "last_active_date": {
+                "last_completed_date": {
                     "type": "string"
                 },
                 "longest_streak": {
@@ -3173,7 +3462,38 @@ const docTemplate = `{
                 "status": {
                     "$ref": "#/definitions/loviary_app_backend_internal_domain_streaks.StreakStatus"
                 },
+                "streak_id": {
+                    "type": "string"
+                },
                 "updated_at": {
+                    "type": "string"
+                },
+                "weekly_log": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.DayLog"
+                    }
+                }
+            }
+        },
+        "loviary_app_backend_internal_interfaces_http_dto.TodaysMoodInfo": {
+            "type": "object",
+            "properties": {
+                "my_mood": {
+                    "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodEntry"
+                },
+                "partner_mood": {
+                    "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodEntry"
+                }
+            }
+        },
+        "loviary_app_backend_internal_interfaces_http_dto.UserInfo": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "display_name": {
                     "type": "string"
                 },
                 "user_id": {

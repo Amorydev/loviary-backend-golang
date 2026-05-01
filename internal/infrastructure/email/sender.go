@@ -1,5 +1,9 @@
 package email
 
+import (
+    "loviary.app/backend/pkg/logger"
+)
+
 // Config holds SMTP configuration
 type Config struct {
     Host     string
@@ -16,9 +20,9 @@ type Sender interface {
 }
 
 // NewSender creates a new email sender
-func NewSender(cfg *Config) Sender {
+func NewSender(cfg *Config, log *logger.Logger) Sender {
     return &smtpSender{
         cfg: cfg,
-        log: nil, // Will be injected if needed
+        log: log,
     }
 }

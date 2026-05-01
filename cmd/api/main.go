@@ -18,12 +18,14 @@ import (
 	_ "loviary.app/backend/docs" // Swagger docs - required for UI to load
 
 	"loviary.app/backend/internal/application/auth"
+	appChapters "loviary.app/backend/internal/application/chapters"
 	"loviary.app/backend/internal/application/couples"
 	"loviary.app/backend/internal/application/home"
 	"loviary.app/backend/internal/application/memories"
 	"loviary.app/backend/internal/application/moods"
 	"loviary.app/backend/internal/application/oauth"
 	"loviary.app/backend/internal/application/reminders"
+	appSparks "loviary.app/backend/internal/application/sparks"
 	"loviary.app/backend/internal/application/streaks"
 	"loviary.app/backend/internal/application/users"
 	"loviary.app/backend/internal/application/verification"
@@ -81,7 +83,7 @@ func main() {
 
 	// Run migrations
 	log.Info("Running database migrations")
-	if err := migrate(dbConn.DB.DB); err != nil {
+	if err := migrate(dbConn.DB.DB, log); err != nil {
 		log.Fatal("Failed to run migrations", err)
 	}
 
@@ -94,6 +96,8 @@ func main() {
 	reminderRepo := persistence.NewReminderRepository(dbConn.DB.DB)
 	memoryRepo := persistence.NewMemoryRepository(dbConn.DB.DB)
 	verificationRepo := persistence.NewEmailVerificationRepository(dbConn.DB)
+	chapterRepo := persistence.NewChapterRepository(dbConn.DB.DB)
+	sparkRepo := persistence.NewSparkRepository(dbConn.DB.DB)
 
 	// Initialize JWT manager
 	jwtManager := jwt.NewManager(
@@ -113,7 +117,16 @@ func main() {
 		From:     cfg.SMTP.From,
 		Enabled:  cfg.SMTP.Enabled,
 	}
-	emailSender := email.NewSender(emailCfg)
+	emailSender := email.NewSender(emailCfg, log)
+
+	// Log SMTP configuration (hide password)
+	log.Info("SMTP Configuration", map[string]interface{}{
+		"host":    cfg.SMTP.Host,
+		"port":    cfg.SMTP.Port,
+		"username": cfg.SMTP.Username,
+		"from":    cfg.SMTP.From,
+		"enabled":  cfg.SMTP.Enabled,
+	})
 
 	// Initialize verification service
 	verificationService := verification.NewService(
@@ -140,10 +153,15 @@ func main() {
 	streakService := streaks.NewService(streakRepo)
 	reminderService := reminders.NewService(reminderRepo)
 	memoryService := memories.NewService(memoryRepo)
+	chapterService := appChapters.NewService(chapterRepo)
+	sparkService := appSparks.NewService(sparkRepo)
 	homeService := home.NewService(
+		userService,
 		coupleService,
 		moodService,
 		streakService,
+		chapterService,
+		sparkService,
 	)
 
 	// Initialize OAuth service
@@ -163,7 +181,7 @@ func main() {
 	authHandler := handlers.NewAuthHandler(authService, verificationService)
 	oauthHandler := handlers.NewOAuthHandler(oauthService)
 	coupleHandler := handlers.NewCoupleHandler(coupleService, userService)
-	moodHandler := handlers.NewMoodHandler(moodService)
+	moodHandler := handlers.NewMoodHandler(moodService, streakService)
 	streakHandler := handlers.NewStreakHandler(streakService)
 	reminderHandler := handlers.NewReminderHandler(reminderService)
 	memoryHandler := handlers.NewMemoryHandler(memoryService)
@@ -270,7 +288,6 @@ func main() {
 		home := v1.Group("/home")
 		{
 			home.GET("", middleware.AuthMiddleware(jwtManager), homeHandler.GetDashboard)
-			home.GET("/summary", middleware.AuthMiddleware(jwtManager), homeHandler.GetSummary)
 		}
 
 		// Storage routes
@@ -314,7 +331,20 @@ func main() {
 }
 
 // migrate runs goose migrations
-func migrate(db *sql.DB) error {
+func migrate(db *sql.DB, log *logger.Logger) error {
 	migrationsDir := "./migrations"
-	return goose.Up(db, migrationsDir)
+
+	// Try to run migrations up
+	err := goose.Up(db, migrationsDir)
+	if err != nil {
+		// Check if error is "no next version" (already up-to-date)
+		if err.Error() == "no next version found" {
+			log.Info("Database already up-to-date, no migrations to run")
+			return nil
+		}
+		return err
+	}
+
+	log.Info("Migrations completed successfully")
+	return nil
 }

@@ -11,15 +11,16 @@ import (
 
 // Mood represents a user's mood entry
 type Mood struct {
-    ID        uuid.UUID `json:"id" db:"id"`
-    UserID    uuid.UUID `json:"user_id" db:"user_id"`
-    Date      time.Time `json:"date" db:"date"`
-    MoodType  MoodType  `json:"mood_type" db:"mood_type"`
-    Intensity int       `json:"intensity" db:"intensity"` // 1-10 scale
-    Note      *string   `json:"note,omitempty" db:"note"`
-    IsShared  bool      `json:"is_shared" db:"is_shared"` // Shared with partner
-    CreatedAt time.Time `json:"created_at" db:"created_at"`
-    UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+	ID        uuid.UUID `json:"id" db:"id"`
+	UserID    uuid.UUID `json:"user_id" db:"user_id"`
+	Date      time.Time `json:"date" db:"date"`
+	MoodType  MoodType  `json:"mood_type" db:"mood_type"`
+	Intensity int       `json:"intensity" db:"intensity"` // 1-10 scale
+	MoodEmoji *string   `json:"mood_emoji,omitempty" db:"mood_emoji"`
+	Note      *string   `json:"note,omitempty" db:"note"`
+	IsShared  bool      `json:"is_shared" db:"is_shared"` // Shared with partner
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
 // MoodType represents the type of mood

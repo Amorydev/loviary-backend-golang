@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"context"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -8,20 +10,25 @@ import (
 	"github.com/google/uuid"
 
 	appMoods "loviary.app/backend/internal/application/moods"
+	appStreaks "loviary.app/backend/internal/application/streaks"
 	"loviary.app/backend/internal/domain/moods"
 	"loviary.app/backend/internal/interfaces/http/dto"
 	"loviary.app/backend/internal/interfaces/http/middleware"
 	apperrors "loviary.app/backend/pkg/errors"
 )
 
-// MoodHandler handles mood-related HTTP requests
+// MoodHandler handles mood-related HTTP requests.
 type MoodHandler struct {
-	moodService *appMoods.Service
+	moodService   *appMoods.Service
+	streakService *appStreaks.Service
 }
 
-// NewMoodHandler creates a new mood handler
-func NewMoodHandler(moodService *appMoods.Service) *MoodHandler {
-	return &MoodHandler{moodService: moodService}
+// NewMoodHandler creates a new mood handler.
+func NewMoodHandler(moodService *appMoods.Service, streakService *appStreaks.Service) *MoodHandler {
+	return &MoodHandler{
+		moodService:   moodService,
+		streakService: streakService,
+	}
 }
 
 // CreateMoodRequest represents create mood request
@@ -80,7 +87,22 @@ func (h *MoodHandler) CreateMood(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, dto.MoodToResponse(mood))
+	// Trigger streak log asynchronously (fire-and-forget).
+	// coupleID is embedded in JWT claims via middleware.
+	if coupleIDPtr, ok := middleware.GetCoupleID(c); ok && coupleIDPtr != nil {
+		coupleID := *coupleIDPtr
+		go func() {
+			if err := h.streakService.RecordLog(context.Background(), coupleID, userID, "mood_log"); err != nil {
+				slog.Error("failed to record streak log after mood creation",
+					"user_id", userID,
+					"couple_id", coupleID,
+					"error", err,
+				)
+			}
+		}()
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"success": true, "data": dto.MoodToResponse(mood)})
 }
 
 // GetMood retrieves a mood by ID
