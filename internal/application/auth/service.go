@@ -98,7 +98,7 @@ func (s *Service) Register(ctx context.Context, req RegisterRequest) (*users.Use
         return nil, apperrors.New("INTERNAL_ERROR", "Failed to hash password")
     }
 
-    // Create user
+    // Create user (KeyCouple will be generated after email verification)
     user := &users.User{
         ID:            uuid.New(),
         Username:      req.Username,
@@ -106,7 +106,7 @@ func (s *Service) Register(ctx context.Context, req RegisterRequest) (*users.Use
         PasswordHash:  string(hashedPassword),
         Language:      req.Language,
         IsActive:      true,
-        EmailVerified: false, // Email chưa được xác thực
+        EmailVerified: false,
         CreatedAt:     time.Now(),
         UpdatedAt:     time.Now(),
     }

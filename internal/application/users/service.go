@@ -2,7 +2,10 @@ package users
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
+	"fmt"
+	"math/big"
 	"time"
 
 	"github.com/google/uuid"
@@ -77,15 +80,16 @@ func (s *Service) Create(ctx context.Context, input CreateUserInput) (*users.Use
 	}
 
 	user := &users.User{
-		ID:            uuid.New(),
-		Username:      input.Username,
-		Email:         input.Email,
-		PasswordHash:  hashedPassword,
-		FirstName:     input.FirstName,
-		LastName:      input.LastName,
-		DateOfBirth:   input.DateOfBirth,
-		Gender:        input.Gender,
-		Language:      input.Language,
+		ID:           uuid.New(),
+		Username:     input.Username,
+		Email:        input.Email,
+		PasswordHash: hashedPassword,
+		FirstName:    input.FirstName,
+		LastName:     input.LastName,
+		DateOfBirth:  input.DateOfBirth,
+		Gender:       input.Gender,
+		Language:     input.Language,
+		// KeyCouple is generated after email verification — see AssignKeyCouple()
 		IsActive:      true,
 		EmailVerified: false,
 		CreatedAt:     time.Now(),
@@ -99,14 +103,79 @@ func (s *Service) Create(ctx context.Context, input CreateUserInput) (*users.Use
 	return user, nil
 }
 
+// generateUniqueKeyCouple generates a random 6-digit numeric invite code (000000–999999)
+// and retries up to 10 times to avoid collisions.
+func (s *Service) generateUniqueKeyCouple(ctx context.Context) (string, error) {
+	for range 10 {
+		key, err := randomInviteCode()
+		if err != nil {
+			return "", err
+		}
+		exists, err := s.repo.ExistsByKeyCouple(ctx, key)
+		if err != nil {
+			return "", err
+		}
+		if !exists {
+			return key, nil
+		}
+	}
+	return "", errors.New("KEY_COUPLE_COLLISION", "Failed to generate unique invite code after retries")
+}
+
+// randomInviteCode generates a cryptographically random 6-digit numeric string (e.g. "047293").
+func randomInviteCode() (string, error) {
+	n, err := rand.Int(rand.Reader, big.NewInt(1_000_000))
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%06d", n.Int64()), nil
+}
+
+// AssignKeyCouple generates a unique 6-digit invite code, sets it on the user,
+// and marks email_verified=true — called exactly once after email verification succeeds.
+func (s *Service) AssignKeyCouple(ctx context.Context, userID uuid.UUID) (*users.User, error) {
+	user, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.UserNotFound
+		}
+		return nil, errors.NewWith("INTERNAL_ERROR", "Failed to get user", err)
+	}
+
+	// Idempotent: if already has a key, just mark verified and return
+	if user.KeyCouple != nil {
+		if !user.EmailVerified {
+			user.EmailVerified = true
+			user.UpdatedAt = time.Now()
+			_ = s.repo.Update(ctx, user)
+		}
+		return user, nil
+	}
+
+	keyCouple, err := s.generateUniqueKeyCouple(ctx)
+	if err != nil {
+		return nil, errors.NewWith("INTERNAL_ERROR", "Failed to generate invite code", err)
+	}
+
+	user.KeyCouple = &keyCouple
+	user.EmailVerified = true
+	user.UpdatedAt = time.Now()
+
+	if err := s.repo.Update(ctx, user); err != nil {
+		return nil, errors.NewWith("INTERNAL_ERROR", "Failed to assign couple key", err)
+	}
+
+	return user, nil
+}
+
 // UpdateUserInput represents input for updating a user
 type UpdateUserInput struct {
-	FirstName   *string    `json:"first_name"`
-	LastName    *string    `json:"last_name"`
-	DateOfBirth *time.Time `json:"date_of_birth"`
+	FirstName   *string        `json:"first_name"`
+	LastName    *string        `json:"last_name"`
+	DateOfBirth *time.Time     `json:"date_of_birth"`
 	Gender      *shared.Gender `json:"gender"`
-	Language    string     `json:"language"`
-	AvatarURL   *string    `json:"avatar_url"`
+	Language    string         `json:"language"`
+	AvatarURL   *string        `json:"avatar_url"`
 }
 
 // Update updates user information

@@ -29,18 +29,6 @@ func NewUserHandler(userService *appUsers.Service, coupleService *appCouples.Ser
 	}
 }
 
-// CreateUserRequest represents the request to create a user
-type CreateUserRequest struct {
-	Username    string         `json:"username" binding:"required,min=3,max=50,alphanum"`
-	Email       string         `json:"email" binding:"required,email,max=100"`
-	Password    string         `json:"password" binding:"required,min=8,max=100"`
-	FirstName   *string        `json:"first_name" binding:"max=50"`
-	LastName    *string        `json:"last_name" binding:"max=50"`
-	DateOfBirth *time.Time     `json:"date_of_birth"`
-	Gender      *shared.Gender `json:"gender" binding:"omitempty,oneof=male female other prefer_not"`
-	Language    string         `json:"language" binding:"max=10"`
-}
-
 // UpdateUserRequest represents update user request
 type UpdateUserRequest struct {
 	FirstName   *string        `json:"first_name" binding:"max=50"`
@@ -56,45 +44,6 @@ type UpdateDeviceRequest struct {
 	FCMToken   string `json:"fcm_token" binding:"required"`
 	Platform   string `json:"platform" binding:"required,oneof=ios android web"`
 	DeviceName string `json:"device_name"`
-}
-
-// CreateUser handles user registration
-// @Summary Create user
-// @Description Create a new user account (alternative endpoint)
-// @Tags users
-// @Accept  json
-// @Produce  json
-// @Param   request  body  handlers.CreateUserRequest  true  "User creation request"
-// @Success  201  {object}  dto.UserResponse "User created successfully"
-// @Failure  400  {object}  handlers.ErrorResponse "Invalid input"
-// @Failure  409  {object}  handlers.ErrorResponse "Duplicate email or username"
-// @Failure  500  {object}  handlers.ErrorResponse "Internal server error"
-// @Router   /users/register [post]
-func (h *UserHandler) CreateUser(c *gin.Context) {
-	var req CreateUserRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, apperrors.New("INVALID_INPUT", err.Error()))
-		return
-	}
-
-	input := appUsers.CreateUserInput{
-		Username:    req.Username,
-		Email:       req.Email,
-		Password:    req.Password,
-		FirstName:   req.FirstName,
-		LastName:    req.LastName,
-		DateOfBirth: req.DateOfBirth,
-		Gender:      req.Gender,
-		Language:    req.Language,
-	}
-
-	user, err := h.userService.Create(c.Request.Context(), input)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	c.JSON(http.StatusCreated, dto.UserToResponse(user, false))
 }
 
 // GetUser retrieves a user by ID

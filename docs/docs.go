@@ -46,7 +46,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -84,31 +84,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Login successful with tokens",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.LoginResponse"
+                            "$ref": "#/definitions/handlers.LoginResponse"
                         }
                     },
                     "400": {
                         "description": "Missing or invalid code",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "OAuth failed",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Email exists with different provider",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -134,7 +134,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.GoogleMobileRequest"
+                            "$ref": "#/definitions/handlers.GoogleMobileRequest"
                         }
                     }
                 ],
@@ -142,31 +142,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Login successful with tokens",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.LoginResponse"
+                            "$ref": "#/definitions/handlers.LoginResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Invalid Google token",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Email exists with different provider",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -192,7 +192,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.LoginRequest"
+                            "$ref": "#/definitions/handlers.LoginRequest"
                         }
                     }
                 ],
@@ -200,31 +200,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Login successful with tokens",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.LoginResponse"
+                            "$ref": "#/definitions/handlers.LoginResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Invalid credentials or email not verified",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Account disabled",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -255,7 +255,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.LogoutRequest"
+                            "$ref": "#/definitions/handlers.LogoutRequest"
                         }
                     }
                 ],
@@ -263,25 +263,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Logged out successfully",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.SuccessResponse"
+                            "$ref": "#/definitions/handlers.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -309,19 +309,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Logged out from all devices",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.SuccessResponse"
+                            "$ref": "#/definitions/handlers.SuccessResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -347,7 +347,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.RefreshRequest"
+                            "$ref": "#/definitions/handlers.RefreshRequest"
                         }
                     }
                 ],
@@ -355,25 +355,25 @@ const docTemplate = `{
                     "200": {
                         "description": "New tokens issued",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.RefreshResponse"
+                            "$ref": "#/definitions/handlers.RefreshResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Token expired, revoked or invalid",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -399,7 +399,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.RegisterRequest"
+                            "$ref": "#/definitions/handlers.RegisterRequest"
                         }
                     }
                 ],
@@ -407,25 +407,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Successfully registered",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.RegisterResponse"
+                            "$ref": "#/definitions/handlers.RegisterResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Email or username already exists",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -451,7 +451,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ResendVerificationRequest"
+                            "$ref": "#/definitions/handlers.ResendVerificationRequest"
                         }
                     }
                 ],
@@ -459,25 +459,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Verification email sent",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.SuccessResponse"
+                            "$ref": "#/definitions/handlers.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "User not found or already verified",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Verification pending or resend too fast",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -503,39 +503,39 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.VerifyEmailRequest"
+                            "$ref": "#/definitions/handlers.VerifyEmailRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Email verified successfully",
+                        "description": "Email verified — returns user with key_couple",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.SuccessResponse"
+                            "$ref": "#/definitions/dto.UserResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Verification not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Email already verified",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "410": {
                         "description": "Code expired",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -566,7 +566,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ConfirmInvitationRequest"
+                            "$ref": "#/definitions/handlers.ConfirmInvitationRequest"
                         }
                     }
                 ],
@@ -574,31 +574,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Invitation accepted",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.MessageResponse"
+                            "$ref": "#/definitions/handlers.MessageResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Couple not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -629,7 +629,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.InviteRequest"
+                            "$ref": "#/definitions/handlers.InviteRequest"
                         }
                     }
                 ],
@@ -637,31 +637,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Invitation created",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.InviteResponse"
+                            "$ref": "#/definitions/handlers.InviteResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "User with invite key not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Invitation conflict",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -689,19 +689,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Couple data",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.CoupleResponse"
+                            "$ref": "#/definitions/handlers.CoupleResponse"
                         }
                     },
                     "404": {
                         "description": "No active couple found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -727,25 +727,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Breakup initiated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.MessageResponse"
+                            "$ref": "#/definitions/handlers.MessageResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "No active couple found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -773,19 +773,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.DashboardResponse"
+                            "$ref": "#/definitions/dto.DashboardResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -827,25 +827,25 @@ const docTemplate = `{
                     "200": {
                         "description": "List of memories with pagination info",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.MemoryListResponse"
+                            "$ref": "#/definitions/handlers.MemoryListResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid pagination parameters",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -874,7 +874,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.CreateMemoryRequest"
+                            "$ref": "#/definitions/handlers.CreateMemoryRequest"
                         }
                     }
                 ],
@@ -882,25 +882,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Memory created",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.MemoryResponse"
+                            "$ref": "#/definitions/dto.MemoryResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -937,31 +937,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Memory data",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.MemoryResponse"
+                            "$ref": "#/definitions/dto.MemoryResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid memory ID",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Memory not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -996,31 +996,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Memory deleted",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.SuccessResponse"
+                            "$ref": "#/definitions/handlers.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid memory ID",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Memory not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1056,7 +1056,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.UpdateMemoryRequest"
+                            "$ref": "#/definitions/handlers.UpdateMemoryRequest"
                         }
                     }
                 ],
@@ -1064,31 +1064,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Updated memory",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.MemoryResponse"
+                            "$ref": "#/definitions/dto.MemoryResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Memory not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1119,7 +1119,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.CreateMoodRequest"
+                            "$ref": "#/definitions/handlers.CreateMoodRequest"
                         }
                     }
                 ],
@@ -1127,25 +1127,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Mood created",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodResponse"
+                            "$ref": "#/definitions/dto.MoodResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1187,25 +1187,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Mood history with count",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.MoodListResponse"
+                            "$ref": "#/definitions/handlers.MoodListResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid date format",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1233,25 +1233,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Today's mood",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodResponse"
+                            "$ref": "#/definitions/dto.MoodResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "No mood logged today",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1288,31 +1288,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Mood data",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodResponse"
+                            "$ref": "#/definitions/dto.MoodResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid mood ID",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Mood not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1347,31 +1347,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Mood deleted",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.SuccessResponse"
+                            "$ref": "#/definitions/handlers.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid mood ID",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Mood not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1407,7 +1407,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.UpdateMoodRequest"
+                            "$ref": "#/definitions/handlers.UpdateMoodRequest"
                         }
                     }
                 ],
@@ -1415,31 +1415,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Updated mood",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodResponse"
+                            "$ref": "#/definitions/dto.MoodResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Mood not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1467,19 +1467,19 @@ const docTemplate = `{
                     "200": {
                         "description": "List of reminders with count",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ReminderListResponse"
+                            "$ref": "#/definitions/handlers.ReminderListResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1508,7 +1508,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.CreateReminderRequest"
+                            "$ref": "#/definitions/handlers.CreateReminderRequest"
                         }
                     }
                 ],
@@ -1516,25 +1516,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Reminder created",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.ReminderResponse"
+                            "$ref": "#/definitions/dto.ReminderResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1571,31 +1571,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Reminder data",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.ReminderResponse"
+                            "$ref": "#/definitions/dto.ReminderResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid reminder ID",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Reminder not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1630,31 +1630,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Reminder deleted",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.SuccessResponse"
+                            "$ref": "#/definitions/handlers.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid reminder ID",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Reminder not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1690,7 +1690,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.UpdateReminderRequest"
+                            "$ref": "#/definitions/handlers.UpdateReminderRequest"
                         }
                     }
                 ],
@@ -1698,31 +1698,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Updated reminder",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.ReminderResponse"
+                            "$ref": "#/definitions/dto.ReminderResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Reminder not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1753,7 +1753,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.PresignRequest"
+                            "$ref": "#/definitions/handlers.PresignRequest"
                         }
                     }
                 ],
@@ -1761,19 +1761,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Presigned URL and file info",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.PresignResponse"
+                            "$ref": "#/definitions/handlers.PresignResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input or file too large",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1808,13 +1808,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1851,31 +1851,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.StreakResponse"
+                            "$ref": "#/definitions/dto.StreakResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1919,25 +1919,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1965,19 +1965,19 @@ const docTemplate = `{
                     "200": {
                         "description": "User profile",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.UserResponse"
+                            "$ref": "#/definitions/dto.UserResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2006,7 +2006,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.UpdateUserRequest"
+                            "$ref": "#/definitions/handlers.UpdateUserRequest"
                         }
                     }
                 ],
@@ -2014,25 +2014,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Updated user data",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.UserResponse"
+                            "$ref": "#/definitions/dto.UserResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2063,7 +2063,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.UpdateDeviceRequest"
+                            "$ref": "#/definitions/handlers.UpdateDeviceRequest"
                         }
                     }
                 ],
@@ -2071,71 +2071,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Device updated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.SuccessResponse"
+                            "$ref": "#/definitions/handlers.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/register": {
-            "post": {
-                "description": "Create a new user account (alternative endpoint)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Create user",
-                "parameters": [
-                    {
-                        "description": "User creation request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.CreateUserRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "User created successfully",
-                        "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.UserResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Duplicate email or username",
-                        "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2167,25 +2115,25 @@ const docTemplate = `{
                     "200": {
                         "description": "User found",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.UserResponse"
+                            "$ref": "#/definitions/dto.UserResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid user ID",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2221,7 +2169,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.UpdateUserRequest"
+                            "$ref": "#/definitions/handlers.UpdateUserRequest"
                         }
                     }
                 ],
@@ -2229,31 +2177,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Updated user data",
                         "schema": {
-                            "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.UserResponse"
+                            "$ref": "#/definitions/dto.UserResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input or user ID",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Not authenticated",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_interfaces_http_handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -2261,7 +2209,362 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "internal_interfaces_http_handlers.ConfirmInvitationRequest": {
+        "dto.ChapterInfo": {
+            "type": "object",
+            "properties": {
+                "cover_image_url": {
+                    "type": "string"
+                },
+                "days_together": {
+                    "type": "integer"
+                },
+                "milestone_percent": {
+                    "type": "integer"
+                },
+                "milestone_target": {
+                    "type": "integer"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CoupleInfo": {
+            "type": "object",
+            "properties": {
+                "couple_id": {
+                    "type": "string"
+                },
+                "partner_avatar_url": {
+                    "type": "string"
+                },
+                "partner_name": {
+                    "type": "string"
+                },
+                "relationship_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.DashboardResponse": {
+            "type": "object",
+            "properties": {
+                "chapter": {
+                    "$ref": "#/definitions/dto.ChapterInfo"
+                },
+                "couple": {
+                    "$ref": "#/definitions/dto.CoupleInfo"
+                },
+                "daily_spark": {
+                    "$ref": "#/definitions/dto.SparkInfo"
+                },
+                "last_updated": {
+                    "type": "string"
+                },
+                "streaks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.StreakInfo"
+                    }
+                },
+                "todays_mood": {
+                    "$ref": "#/definitions/dto.TodaysMoodInfo"
+                },
+                "user": {
+                    "$ref": "#/definitions/dto.UserResponse"
+                }
+            }
+        },
+        "dto.DayLog": {
+            "type": "object",
+            "properties": {
+                "completed": {
+                    "description": "true = both users logged",
+                    "type": "boolean"
+                },
+                "day": {
+                    "description": "\"Mon\", \"Tue\", ...",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.MemoryResponse": {
+            "type": "object",
+            "properties": {
+                "couple_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_private": {
+                    "type": "boolean"
+                },
+                "is_shared": {
+                    "type": "boolean"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "media_urls": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "memory_date": {
+                    "type": "string"
+                },
+                "memory_type": {
+                    "$ref": "#/definitions/memories.MemoryType"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.MoodEntry": {
+            "type": "object",
+            "properties": {
+                "icon": {
+                    "type": "string"
+                },
+                "intensity": {
+                    "type": "integer"
+                },
+                "mood_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.MoodResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "intensity": {
+                    "type": "integer"
+                },
+                "is_shared": {
+                    "type": "boolean"
+                },
+                "mood_emoji": {
+                    "type": "string"
+                },
+                "mood_type": {
+                    "$ref": "#/definitions/moods.MoodType"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ReminderResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "last_sent_at": {
+                    "type": "string"
+                },
+                "recurrence": {
+                    "$ref": "#/definitions/reminders.RecurrenceType"
+                },
+                "recurrence_value": {
+                    "type": "integer"
+                },
+                "reminder_time": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SparkInfo": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "is_answered": {
+                    "type": "boolean"
+                },
+                "question": {
+                    "type": "string"
+                },
+                "spark_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.StreakInfo": {
+            "type": "object",
+            "properties": {
+                "activity_type": {
+                    "type": "string"
+                },
+                "current_streak": {
+                    "type": "integer"
+                },
+                "longest_streak": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "weekly_log": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.DayLog"
+                    }
+                }
+            }
+        },
+        "dto.StreakResponse": {
+            "type": "object",
+            "properties": {
+                "activity_type": {
+                    "type": "string"
+                },
+                "couple_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "current_streak": {
+                    "type": "integer"
+                },
+                "last_completed_date": {
+                    "type": "string"
+                },
+                "longest_streak": {
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/streaks.StreakStatus"
+                },
+                "streak_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "weekly_log": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.DayLog"
+                    }
+                }
+            }
+        },
+        "dto.TodaysMoodInfo": {
+            "type": "object",
+            "properties": {
+                "my_mood": {
+                    "$ref": "#/definitions/dto.MoodEntry"
+                },
+                "partner_mood": {
+                    "$ref": "#/definitions/dto.MoodEntry"
+                }
+            }
+        },
+        "dto.UserResponse": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "date_of_birth": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "email_verified": {
+                    "type": "boolean"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "$ref": "#/definitions/shared.Gender"
+                },
+                "has_couple": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "key_couple": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.ConfirmInvitationRequest": {
             "type": "object",
             "required": [
                 "couple_id"
@@ -2272,7 +2575,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.CoupleResponse": {
+        "handlers.CoupleResponse": {
             "type": "object",
             "properties": {
                 "couple_id": {
@@ -2310,7 +2613,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.CreateMemoryRequest": {
+        "handlers.CreateMemoryRequest": {
             "type": "object",
             "required": [
                 "memory_date",
@@ -2353,7 +2656,7 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/loviary_app_backend_internal_domain_memories.MemoryType"
+                            "$ref": "#/definitions/memories.MemoryType"
                         }
                     ]
                 },
@@ -2362,7 +2665,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.CreateMoodRequest": {
+        "handlers.CreateMoodRequest": {
             "type": "object",
             "required": [
                 "date",
@@ -2396,7 +2699,7 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/loviary_app_backend_internal_domain_moods.MoodType"
+                            "$ref": "#/definitions/moods.MoodType"
                         }
                     ]
                 },
@@ -2405,7 +2708,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.CreateReminderRequest": {
+        "handlers.CreateReminderRequest": {
             "type": "object",
             "required": [
                 "recurrence",
@@ -2426,7 +2729,7 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/loviary_app_backend_internal_domain_reminders.RecurrenceType"
+                            "$ref": "#/definitions/reminders.RecurrenceType"
                         }
                     ]
                 },
@@ -2441,59 +2744,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.CreateUserRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "password",
-                "username"
-            ],
-            "properties": {
-                "date_of_birth": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "first_name": {
-                    "type": "string",
-                    "maxLength": 50
-                },
-                "gender": {
-                    "enum": [
-                        "male",
-                        "female",
-                        "other",
-                        "prefer_not"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/loviary_app_backend_internal_domain_shared.Gender"
-                        }
-                    ]
-                },
-                "language": {
-                    "type": "string",
-                    "maxLength": 10
-                },
-                "last_name": {
-                    "type": "string",
-                    "maxLength": 50
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 8
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
-                }
-            }
-        },
-        "internal_interfaces_http_handlers.ErrorResponse": {
+        "handlers.ErrorResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -2506,7 +2757,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.GoogleMobileRequest": {
+        "handlers.GoogleMobileRequest": {
             "type": "object",
             "required": [
                 "google_token"
@@ -2517,7 +2768,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.InviteRequest": {
+        "handlers.InviteRequest": {
             "type": "object",
             "required": [
                 "invite_key"
@@ -2537,13 +2788,13 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/loviary_app_backend_internal_domain_shared.RelationshipType"
+                            "$ref": "#/definitions/shared.RelationshipType"
                         }
                     ]
                 }
             }
         },
-        "internal_interfaces_http_handlers.InviteResponse": {
+        "handlers.InviteResponse": {
             "type": "object",
             "properties": {
                 "couple_id": {
@@ -2556,28 +2807,33 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "$ref": "#/definitions/loviary_app_backend_internal_domain_shared.CoupleStatus"
+                    "$ref": "#/definitions/shared.CoupleStatus"
                 }
             }
         },
-        "internal_interfaces_http_handlers.LoginData": {
+        "handlers.LoginData": {
             "type": "object",
             "properties": {
                 "access_token": {
                     "type": "string"
                 },
                 "expires_in": {
-                    "$ref": "#/definitions/time.Duration"
+                    "description": "seconds",
+                    "type": "integer",
+                    "example": 900
+                },
+                "has_couple": {
+                    "type": "boolean"
                 },
                 "refresh_token": {
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/internal_interfaces_http_handlers.LoginUserData"
+                    "$ref": "#/definitions/dto.UserResponse"
                 }
             }
         },
-        "internal_interfaces_http_handlers.LoginRequest": {
+        "handlers.LoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -2595,11 +2851,11 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.LoginResponse": {
+        "handlers.LoginResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/internal_interfaces_http_handlers.LoginData"
+                    "$ref": "#/definitions/handlers.LoginData"
                 },
                 "success": {
                     "type": "boolean",
@@ -2607,36 +2863,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.LoginUserData": {
-            "type": "object",
-            "properties": {
-                "avatar_url": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "email_verified": {
-                    "type": "boolean"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_interfaces_http_handlers.LogoutRequest": {
+        "handlers.LogoutRequest": {
             "type": "object",
             "required": [
                 "refresh_token"
@@ -2647,7 +2874,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.MemoryListResponse": {
+        "handlers.MemoryListResponse": {
             "type": "object",
             "properties": {
                 "count": {
@@ -2661,7 +2888,7 @@ const docTemplate = `{
                 "memories": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.MemoryResponse"
+                        "$ref": "#/definitions/dto.MemoryResponse"
                     }
                 },
                 "offset": {
@@ -2670,7 +2897,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.MessageResponse": {
+        "handlers.MessageResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -2679,7 +2906,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.MoodListResponse": {
+        "handlers.MoodListResponse": {
             "type": "object",
             "properties": {
                 "count": {
@@ -2689,12 +2916,12 @@ const docTemplate = `{
                 "moods": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodResponse"
+                        "$ref": "#/definitions/dto.MoodResponse"
                     }
                 }
             }
         },
-        "internal_interfaces_http_handlers.PresignRequest": {
+        "handlers.PresignRequest": {
             "type": "object",
             "required": [
                 "content_type",
@@ -2714,7 +2941,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.PresignResponse": {
+        "handlers.PresignResponse": {
             "type": "object",
             "properties": {
                 "expires_at": {
@@ -2731,7 +2958,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.RefreshRequest": {
+        "handlers.RefreshRequest": {
             "type": "object",
             "required": [
                 "refresh_token"
@@ -2742,11 +2969,11 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.RefreshResponse": {
+        "handlers.RefreshResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/internal_interfaces_http_handlers.TokenData"
+                    "$ref": "#/definitions/handlers.TokenData"
                 },
                 "success": {
                     "type": "boolean",
@@ -2754,7 +2981,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.RegisterData": {
+        "handlers.RegisterData": {
             "type": "object",
             "properties": {
                 "email": {
@@ -2771,7 +2998,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.RegisterRequest": {
+        "handlers.RegisterRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -2803,11 +3030,11 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.RegisterResponse": {
+        "handlers.RegisterResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/internal_interfaces_http_handlers.RegisterData"
+                    "$ref": "#/definitions/handlers.RegisterData"
                 },
                 "message": {
                     "type": "string",
@@ -2819,7 +3046,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.ReminderListResponse": {
+        "handlers.ReminderListResponse": {
             "type": "object",
             "properties": {
                 "count": {
@@ -2829,12 +3056,12 @@ const docTemplate = `{
                 "reminders": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.ReminderResponse"
+                        "$ref": "#/definitions/dto.ReminderResponse"
                     }
                 }
             }
         },
-        "internal_interfaces_http_handlers.ResendVerificationRequest": {
+        "handlers.ResendVerificationRequest": {
             "type": "object",
             "required": [
                 "email"
@@ -2845,7 +3072,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.SuccessResponse": {
+        "handlers.SuccessResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -2858,21 +3085,23 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.TokenData": {
+        "handlers.TokenData": {
             "type": "object",
             "properties": {
                 "access_token": {
                     "type": "string"
                 },
                 "expires_in": {
-                    "$ref": "#/definitions/time.Duration"
+                    "description": "seconds",
+                    "type": "integer",
+                    "example": 900
                 },
                 "refresh_token": {
                     "type": "string"
                 }
             }
         },
-        "internal_interfaces_http_handlers.UpdateDeviceRequest": {
+        "handlers.UpdateDeviceRequest": {
             "type": "object",
             "required": [
                 "fcm_token",
@@ -2895,7 +3124,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.UpdateMemoryRequest": {
+        "handlers.UpdateMemoryRequest": {
             "type": "object",
             "properties": {
                 "description": {
@@ -2930,7 +3159,7 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/loviary_app_backend_internal_domain_memories.MemoryType"
+                            "$ref": "#/definitions/memories.MemoryType"
                         }
                     ]
                 },
@@ -2939,7 +3168,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.UpdateMoodRequest": {
+        "handlers.UpdateMoodRequest": {
             "type": "object",
             "properties": {
                 "intensity": {
@@ -2965,7 +3194,7 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/loviary_app_backend_internal_domain_moods.MoodType"
+                            "$ref": "#/definitions/moods.MoodType"
                         }
                     ]
                 },
@@ -2974,7 +3203,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.UpdateReminderRequest": {
+        "handlers.UpdateReminderRequest": {
             "type": "object",
             "properties": {
                 "description": {
@@ -2993,7 +3222,7 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/loviary_app_backend_internal_domain_reminders.RecurrenceType"
+                            "$ref": "#/definitions/reminders.RecurrenceType"
                         }
                     ]
                 },
@@ -3008,7 +3237,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.UpdateUserRequest": {
+        "handlers.UpdateUserRequest": {
             "type": "object",
             "properties": {
                 "avatar_url": {
@@ -3030,7 +3259,7 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/loviary_app_backend_internal_domain_shared.Gender"
+                            "$ref": "#/definitions/shared.Gender"
                         }
                     ]
                 },
@@ -3044,7 +3273,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_interfaces_http_handlers.VerifyEmailRequest": {
+        "handlers.VerifyEmailRequest": {
             "type": "object",
             "required": [
                 "code",
@@ -3059,7 +3288,7 @@ const docTemplate = `{
                 }
             }
         },
-        "loviary_app_backend_internal_domain_memories.MemoryType": {
+        "memories.MemoryType": {
             "type": "string",
             "enum": [
                 "date_night",
@@ -3078,7 +3307,7 @@ const docTemplate = `{
                 "MemoryTypeAchievement"
             ]
         },
-        "loviary_app_backend_internal_domain_moods.MoodType": {
+        "moods.MoodType": {
             "type": "string",
             "enum": [
                 "happy",
@@ -3105,7 +3334,7 @@ const docTemplate = `{
                 "MoodTypeGrateful"
             ]
         },
-        "loviary_app_backend_internal_domain_reminders.RecurrenceType": {
+        "reminders.RecurrenceType": {
             "type": "string",
             "enum": [
                 "none",
@@ -3122,7 +3351,7 @@ const docTemplate = `{
                 "RecurrenceCustom"
             ]
         },
-        "loviary_app_backend_internal_domain_shared.CoupleStatus": {
+        "shared.CoupleStatus": {
             "type": "string",
             "enum": [
                 "pending_invitation",
@@ -3137,7 +3366,7 @@ const docTemplate = `{
                 "CoupleStatusEnded"
             ]
         },
-        "loviary_app_backend_internal_domain_shared.Gender": {
+        "shared.Gender": {
             "type": "string",
             "enum": [
                 "male",
@@ -3152,7 +3381,7 @@ const docTemplate = `{
                 "GenderPreferNot"
             ]
         },
-        "loviary_app_backend_internal_domain_shared.RelationshipType": {
+        "shared.RelationshipType": {
             "type": "string",
             "enum": [
                 "dating",
@@ -3165,7 +3394,7 @@ const docTemplate = `{
                 "RelationshipMarried"
             ]
         },
-        "loviary_app_backend_internal_domain_streaks.StreakStatus": {
+        "streaks.StreakStatus": {
             "type": "string",
             "enum": [
                 "none",
@@ -3180,396 +3409,6 @@ const docTemplate = `{
                 "StreakStatusAtRisk",
                 "StreakStatusBroken",
                 "StreakStatusReset"
-            ]
-        },
-        "loviary_app_backend_internal_interfaces_http_dto.ChapterInfo": {
-            "type": "object",
-            "properties": {
-                "cover_image_url": {
-                    "type": "string"
-                },
-                "days_together": {
-                    "type": "integer"
-                },
-                "milestone_percent": {
-                    "type": "integer"
-                },
-                "milestone_target": {
-                    "type": "integer"
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "loviary_app_backend_internal_interfaces_http_dto.CoupleInfo": {
-            "type": "object",
-            "properties": {
-                "couple_id": {
-                    "type": "string"
-                },
-                "partner_avatar_url": {
-                    "type": "string"
-                },
-                "partner_name": {
-                    "type": "string"
-                },
-                "relationship_type": {
-                    "type": "string"
-                }
-            }
-        },
-        "loviary_app_backend_internal_interfaces_http_dto.DashboardResponse": {
-            "type": "object",
-            "properties": {
-                "chapter": {
-                    "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.ChapterInfo"
-                },
-                "couple": {
-                    "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.CoupleInfo"
-                },
-                "daily_spark": {
-                    "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.SparkInfo"
-                },
-                "last_updated": {
-                    "type": "string"
-                },
-                "streaks": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.StreakInfo"
-                    }
-                },
-                "todays_mood": {
-                    "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.TodaysMoodInfo"
-                },
-                "user": {
-                    "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.UserInfo"
-                }
-            }
-        },
-        "loviary_app_backend_internal_interfaces_http_dto.DayLog": {
-            "type": "object",
-            "properties": {
-                "completed": {
-                    "description": "true = both users logged",
-                    "type": "boolean"
-                },
-                "day": {
-                    "description": "\"Mon\", \"Tue\", ...",
-                    "type": "string"
-                }
-            }
-        },
-        "loviary_app_backend_internal_interfaces_http_dto.MemoryResponse": {
-            "type": "object",
-            "properties": {
-                "couple_id": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_private": {
-                    "type": "boolean"
-                },
-                "is_shared": {
-                    "type": "boolean"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "media_urls": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "memory_date": {
-                    "type": "string"
-                },
-                "memory_type": {
-                    "$ref": "#/definitions/loviary_app_backend_internal_domain_memories.MemoryType"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "loviary_app_backend_internal_interfaces_http_dto.MoodEntry": {
-            "type": "object",
-            "properties": {
-                "icon": {
-                    "type": "string"
-                },
-                "intensity": {
-                    "type": "integer"
-                },
-                "mood_type": {
-                    "type": "string"
-                }
-            }
-        },
-        "loviary_app_backend_internal_interfaces_http_dto.MoodResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "intensity": {
-                    "type": "integer"
-                },
-                "is_shared": {
-                    "type": "boolean"
-                },
-                "mood_emoji": {
-                    "type": "string"
-                },
-                "mood_type": {
-                    "$ref": "#/definitions/loviary_app_backend_internal_domain_moods.MoodType"
-                },
-                "note": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "loviary_app_backend_internal_interfaces_http_dto.ReminderResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "last_sent_at": {
-                    "type": "string"
-                },
-                "recurrence": {
-                    "$ref": "#/definitions/loviary_app_backend_internal_domain_reminders.RecurrenceType"
-                },
-                "recurrence_value": {
-                    "type": "integer"
-                },
-                "reminder_time": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "loviary_app_backend_internal_interfaces_http_dto.SparkInfo": {
-            "type": "object",
-            "properties": {
-                "category": {
-                    "type": "string"
-                },
-                "is_answered": {
-                    "type": "boolean"
-                },
-                "question": {
-                    "type": "string"
-                },
-                "spark_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "loviary_app_backend_internal_interfaces_http_dto.StreakInfo": {
-            "type": "object",
-            "properties": {
-                "activity_type": {
-                    "type": "string"
-                },
-                "current_streak": {
-                    "type": "integer"
-                },
-                "longest_streak": {
-                    "type": "integer"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "weekly_log": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.DayLog"
-                    }
-                }
-            }
-        },
-        "loviary_app_backend_internal_interfaces_http_dto.StreakResponse": {
-            "type": "object",
-            "properties": {
-                "activity_type": {
-                    "type": "string"
-                },
-                "couple_id": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "current_streak": {
-                    "type": "integer"
-                },
-                "last_completed_date": {
-                    "type": "string"
-                },
-                "longest_streak": {
-                    "type": "integer"
-                },
-                "status": {
-                    "$ref": "#/definitions/loviary_app_backend_internal_domain_streaks.StreakStatus"
-                },
-                "streak_id": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "weekly_log": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.DayLog"
-                    }
-                }
-            }
-        },
-        "loviary_app_backend_internal_interfaces_http_dto.TodaysMoodInfo": {
-            "type": "object",
-            "properties": {
-                "my_mood": {
-                    "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodEntry"
-                },
-                "partner_mood": {
-                    "$ref": "#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodEntry"
-                }
-            }
-        },
-        "loviary_app_backend_internal_interfaces_http_dto.UserInfo": {
-            "type": "object",
-            "properties": {
-                "avatar_url": {
-                    "type": "string"
-                },
-                "display_name": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "loviary_app_backend_internal_interfaces_http_dto.UserResponse": {
-            "type": "object",
-            "properties": {
-                "avatar_url": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "date_of_birth": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "email_verified": {
-                    "type": "boolean"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "gender": {
-                    "$ref": "#/definitions/loviary_app_backend_internal_domain_shared.Gender"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "key_couple": {
-                    "type": "string"
-                },
-                "language": {
-                    "type": "string"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "time.Duration": {
-            "type": "integer",
-            "format": "int64",
-            "enum": [
-                -9223372036854775808,
-                9223372036854775807,
-                1,
-                1000,
-                1000000,
-                1000000000,
-                60000000000,
-                3600000000000
-            ],
-            "x-enum-varnames": [
-                "minDuration",
-                "maxDuration",
-                "Nanosecond",
-                "Microsecond",
-                "Millisecond",
-                "Second",
-                "Minute",
-                "Hour"
             ]
         }
     },

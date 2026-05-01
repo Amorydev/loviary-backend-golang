@@ -133,8 +133,12 @@ func main() {
 		verificationRepo,
 		emailSender,
 		log,
-		15*time.Minute,   // code TTL
-		1*time.Minute,    // resend window
+		15*time.Minute, // code TTL
+		1*time.Minute,  // resend window
+		verification.HardcodeConfig{
+			Enabled: cfg.Verification.HardcodeEnabled,
+			Code:    cfg.Verification.HardcodeCode,
+		},
 	)
 
 	// Initialize services
@@ -179,7 +183,7 @@ func main() {
 
 	// Initialize handlers
 	userHandler := handlers.NewUserHandler(userService, coupleService)
-	authHandler := handlers.NewAuthHandler(authService, verificationService)
+	authHandler := handlers.NewAuthHandler(authService, verificationService, userService)
 	oauthHandler := handlers.NewOAuthHandler(oauthService)
 	coupleHandler := handlers.NewCoupleHandler(coupleService, userService)
 	moodHandler := handlers.NewMoodHandler(moodService, streakService)
@@ -229,7 +233,6 @@ func main() {
 		// User routes
 		users := v1.Group("/users")
 		{
-			users.POST("/register", userHandler.CreateUser)
 			users.GET("/me", middleware.AuthMiddleware(jwtManager), userHandler.GetMyProfile)
 			users.GET("/:id", userHandler.GetUser)
 			users.PATCH("/:id", middleware.AuthMiddleware(jwtManager), userHandler.UpdateUser)

@@ -10,17 +10,18 @@ import (
 
 // Config holds all configuration for the application
 type Config struct {
-	App      AppConfig
-	Database DBConfig
-	JWT      JWTConfig
-	OAuth    OAuthConfig
-	CORS    CORSConfig
-	Rate    RateLimitConfig
-	Log     LogConfig
-	Storage StorageConfig
-	FCM     FCMConfig
-	SMTP    SMTPConfig
-	Features FeatureFlags
+	App          AppConfig
+	Database     DBConfig
+	JWT          JWTConfig
+	OAuth        OAuthConfig
+	CORS         CORSConfig
+	Rate         RateLimitConfig
+	Log          LogConfig
+	Storage      StorageConfig
+	FCM          FCMConfig
+	SMTP         SMTPConfig
+	Features     FeatureFlags
+	Verification VerificationConfig
 }
 
 type AppConfig struct {
@@ -101,6 +102,15 @@ type SMTPConfig struct {
 	Password string
 	From     string
 	Enabled  bool
+}
+
+// VerificationConfig controls email verification behaviour.
+// HardcodeEnabled should ONLY be true in development/testing.
+// When enabled, any code submitted matching HardcodeCode will be accepted
+// without hitting the database, making mobile testing easy.
+type VerificationConfig struct {
+	HardcodeEnabled bool   `mapstructure:"hardcode_enabled"` // VERIFICATION_HARDCODE_ENABLED
+	HardcodeCode    string `mapstructure:"hardcode_code"`    // VERIFICATION_HARDCODE_CODE  (e.g. "000000")
 }
 
 // Load loads configuration from environment variables
@@ -200,6 +210,14 @@ func Load() *Config {
 	}
 	if smtpEnabled := os.Getenv("SMTP_ENABLED"); smtpEnabled != "" {
 		viper.Set("smtp.enabled", smtpEnabled == "true")
+	}
+
+	// Verification hardcode config (dev/testing only)
+	if v := os.Getenv("VERIFICATION_HARDCODE_ENABLED"); v != "" {
+		viper.Set("verification.hardcode_enabled", v == "true")
+	}
+	if v := os.Getenv("VERIFICATION_HARDCODE_CODE"); v != "" {
+		viper.Set("verification.hardcode_code", v)
 	}
 
 	// Debug: log database config

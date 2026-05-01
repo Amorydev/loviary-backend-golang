@@ -1,13 +1,246 @@
 basePath: /api/v1
 definitions:
-  internal_interfaces_http_handlers.ConfirmInvitationRequest:
+  dto.ChapterInfo:
+    properties:
+      cover_image_url:
+        type: string
+      days_together:
+        type: integer
+      milestone_percent:
+        type: integer
+      milestone_target:
+        type: integer
+      start_date:
+        type: string
+      title:
+        type: string
+    type: object
+  dto.CoupleInfo:
+    properties:
+      couple_id:
+        type: string
+      partner_avatar_url:
+        type: string
+      partner_name:
+        type: string
+      relationship_type:
+        type: string
+    type: object
+  dto.DashboardResponse:
+    properties:
+      chapter:
+        $ref: '#/definitions/dto.ChapterInfo'
+      couple:
+        $ref: '#/definitions/dto.CoupleInfo'
+      daily_spark:
+        $ref: '#/definitions/dto.SparkInfo'
+      last_updated:
+        type: string
+      streaks:
+        items:
+          $ref: '#/definitions/dto.StreakInfo'
+        type: array
+      todays_mood:
+        $ref: '#/definitions/dto.TodaysMoodInfo'
+      user:
+        $ref: '#/definitions/dto.UserResponse'
+    type: object
+  dto.DayLog:
+    properties:
+      completed:
+        description: true = both users logged
+        type: boolean
+      day:
+        description: '"Mon", "Tue", ...'
+        type: string
+    type: object
+  dto.MemoryResponse:
+    properties:
+      couple_id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      is_private:
+        type: boolean
+      is_shared:
+        type: boolean
+      location:
+        type: string
+      media_urls:
+        items:
+          type: string
+        type: array
+      memory_date:
+        type: string
+      memory_type:
+        $ref: '#/definitions/memories.MemoryType'
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dto.MoodEntry:
+    properties:
+      icon:
+        type: string
+      intensity:
+        type: integer
+      mood_type:
+        type: string
+    type: object
+  dto.MoodResponse:
+    properties:
+      created_at:
+        type: string
+      date:
+        type: string
+      id:
+        type: string
+      intensity:
+        type: integer
+      is_shared:
+        type: boolean
+      mood_emoji:
+        type: string
+      mood_type:
+        $ref: '#/definitions/moods.MoodType'
+      note:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dto.ReminderResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_sent_at:
+        type: string
+      recurrence:
+        $ref: '#/definitions/reminders.RecurrenceType'
+      recurrence_value:
+        type: integer
+      reminder_time:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dto.SparkInfo:
+    properties:
+      category:
+        type: string
+      is_answered:
+        type: boolean
+      question:
+        type: string
+      spark_id:
+        type: string
+    type: object
+  dto.StreakInfo:
+    properties:
+      activity_type:
+        type: string
+      current_streak:
+        type: integer
+      longest_streak:
+        type: integer
+      status:
+        type: string
+      weekly_log:
+        items:
+          $ref: '#/definitions/dto.DayLog'
+        type: array
+    type: object
+  dto.StreakResponse:
+    properties:
+      activity_type:
+        type: string
+      couple_id:
+        type: string
+      created_at:
+        type: string
+      current_streak:
+        type: integer
+      last_completed_date:
+        type: string
+      longest_streak:
+        type: integer
+      status:
+        $ref: '#/definitions/streaks.StreakStatus'
+      streak_id:
+        type: string
+      updated_at:
+        type: string
+      weekly_log:
+        items:
+          $ref: '#/definitions/dto.DayLog'
+        type: array
+    type: object
+  dto.TodaysMoodInfo:
+    properties:
+      my_mood:
+        $ref: '#/definitions/dto.MoodEntry'
+      partner_mood:
+        $ref: '#/definitions/dto.MoodEntry'
+    type: object
+  dto.UserResponse:
+    properties:
+      avatar_url:
+        type: string
+      created_at:
+        type: string
+      date_of_birth:
+        type: string
+      email:
+        type: string
+      email_verified:
+        type: boolean
+      first_name:
+        type: string
+      gender:
+        $ref: '#/definitions/shared.Gender'
+      has_couple:
+        type: boolean
+      id:
+        type: string
+      is_active:
+        type: boolean
+      key_couple:
+        type: string
+      language:
+        type: string
+      last_name:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  handlers.ConfirmInvitationRequest:
     properties:
       couple_id:
         type: string
     required:
     - couple_id
     type: object
-  internal_interfaces_http_handlers.CoupleResponse:
+  handlers.CoupleResponse:
     properties:
       couple_id:
         example: 550e8400-e29b-41d4-a716-446655440000
@@ -33,7 +266,7 @@ definitions:
       user2_id:
         type: string
     type: object
-  internal_interfaces_http_handlers.CreateMemoryRequest:
+  handlers.CreateMemoryRequest:
     properties:
       couple_id:
         type: string
@@ -53,7 +286,7 @@ definitions:
         type: string
       memory_type:
         allOf:
-        - $ref: '#/definitions/loviary_app_backend_internal_domain_memories.MemoryType'
+        - $ref: '#/definitions/memories.MemoryType'
         enum:
         - date_night
         - trip
@@ -68,7 +301,7 @@ definitions:
     - memory_type
     - title
     type: object
-  internal_interfaces_http_handlers.CreateMoodRequest:
+  handlers.CreateMoodRequest:
     properties:
       date:
         type: string
@@ -80,7 +313,7 @@ definitions:
         type: boolean
       mood_type:
         allOf:
-        - $ref: '#/definitions/loviary_app_backend_internal_domain_moods.MoodType'
+        - $ref: '#/definitions/moods.MoodType'
         enum:
         - happy
         - sad
@@ -99,13 +332,13 @@ definitions:
     - intensity
     - mood_type
     type: object
-  internal_interfaces_http_handlers.CreateReminderRequest:
+  handlers.CreateReminderRequest:
     properties:
       description:
         type: string
       recurrence:
         allOf:
-        - $ref: '#/definitions/loviary_app_backend_internal_domain_reminders.RecurrenceType'
+        - $ref: '#/definitions/reminders.RecurrenceType'
         enum:
         - none
         - daily
@@ -123,44 +356,7 @@ definitions:
     - reminder_time
     - title
     type: object
-  internal_interfaces_http_handlers.CreateUserRequest:
-    properties:
-      date_of_birth:
-        type: string
-      email:
-        maxLength: 100
-        type: string
-      first_name:
-        maxLength: 50
-        type: string
-      gender:
-        allOf:
-        - $ref: '#/definitions/loviary_app_backend_internal_domain_shared.Gender'
-        enum:
-        - male
-        - female
-        - other
-        - prefer_not
-      language:
-        maxLength: 10
-        type: string
-      last_name:
-        maxLength: 50
-        type: string
-      password:
-        maxLength: 100
-        minLength: 8
-        type: string
-      username:
-        maxLength: 50
-        minLength: 3
-        type: string
-    required:
-    - email
-    - password
-    - username
-    type: object
-  internal_interfaces_http_handlers.ErrorResponse:
+  handlers.ErrorResponse:
     properties:
       code:
         example: INVALID_INPUT
@@ -169,14 +365,14 @@ definitions:
         example: validation failed
         type: string
     type: object
-  internal_interfaces_http_handlers.GoogleMobileRequest:
+  handlers.GoogleMobileRequest:
     properties:
       google_token:
         type: string
     required:
     - google_token
     type: object
-  internal_interfaces_http_handlers.InviteRequest:
+  handlers.InviteRequest:
     properties:
       couple_name:
         type: string
@@ -184,7 +380,7 @@ definitions:
         type: string
       relationship_type:
         allOf:
-        - $ref: '#/definitions/loviary_app_backend_internal_domain_shared.RelationshipType'
+        - $ref: '#/definitions/shared.RelationshipType'
         enum:
         - dating
         - engaged
@@ -192,7 +388,7 @@ definitions:
     required:
     - invite_key
     type: object
-  internal_interfaces_http_handlers.InviteResponse:
+  handlers.InviteResponse:
     properties:
       couple_id:
         type: string
@@ -201,20 +397,24 @@ definitions:
       message:
         type: string
       status:
-        $ref: '#/definitions/loviary_app_backend_internal_domain_shared.CoupleStatus'
+        $ref: '#/definitions/shared.CoupleStatus'
     type: object
-  internal_interfaces_http_handlers.LoginData:
+  handlers.LoginData:
     properties:
       access_token:
         type: string
       expires_in:
-        $ref: '#/definitions/time.Duration'
+        description: seconds
+        example: 900
+        type: integer
+      has_couple:
+        type: boolean
       refresh_token:
         type: string
       user:
-        $ref: '#/definitions/internal_interfaces_http_handlers.LoginUserData'
+        $ref: '#/definitions/dto.UserResponse'
     type: object
-  internal_interfaces_http_handlers.LoginRequest:
+  handlers.LoginRequest:
     properties:
       device_info:
         type: string
@@ -226,41 +426,22 @@ definitions:
     - email
     - password
     type: object
-  internal_interfaces_http_handlers.LoginResponse:
+  handlers.LoginResponse:
     properties:
       data:
-        $ref: '#/definitions/internal_interfaces_http_handlers.LoginData'
+        $ref: '#/definitions/handlers.LoginData'
       success:
         example: true
         type: boolean
     type: object
-  internal_interfaces_http_handlers.LoginUserData:
-    properties:
-      avatar_url:
-        type: string
-      email:
-        type: string
-      email_verified:
-        type: boolean
-      first_name:
-        type: string
-      is_active:
-        type: boolean
-      last_name:
-        type: string
-      user_id:
-        type: string
-      username:
-        type: string
-    type: object
-  internal_interfaces_http_handlers.LogoutRequest:
+  handlers.LogoutRequest:
     properties:
       refresh_token:
         type: string
     required:
     - refresh_token
     type: object
-  internal_interfaces_http_handlers.MemoryListResponse:
+  handlers.MemoryListResponse:
     properties:
       count:
         example: 10
@@ -270,29 +451,29 @@ definitions:
         type: integer
       memories:
         items:
-          $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.MemoryResponse'
+          $ref: '#/definitions/dto.MemoryResponse'
         type: array
       offset:
         example: 0
         type: integer
     type: object
-  internal_interfaces_http_handlers.MessageResponse:
+  handlers.MessageResponse:
     properties:
       message:
         example: Operation completed
         type: string
     type: object
-  internal_interfaces_http_handlers.MoodListResponse:
+  handlers.MoodListResponse:
     properties:
       count:
         example: 5
         type: integer
       moods:
         items:
-          $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodResponse'
+          $ref: '#/definitions/dto.MoodResponse'
         type: array
     type: object
-  internal_interfaces_http_handlers.PresignRequest:
+  handlers.PresignRequest:
     properties:
       content_type:
         type: string
@@ -306,7 +487,7 @@ definitions:
     - file_name
     - file_size
     type: object
-  internal_interfaces_http_handlers.PresignResponse:
+  handlers.PresignResponse:
     properties:
       expires_at:
         type: string
@@ -317,22 +498,22 @@ definitions:
       upload_url:
         type: string
     type: object
-  internal_interfaces_http_handlers.RefreshRequest:
+  handlers.RefreshRequest:
     properties:
       refresh_token:
         type: string
     required:
     - refresh_token
     type: object
-  internal_interfaces_http_handlers.RefreshResponse:
+  handlers.RefreshResponse:
     properties:
       data:
-        $ref: '#/definitions/internal_interfaces_http_handlers.TokenData'
+        $ref: '#/definitions/handlers.TokenData'
       success:
         example: true
         type: boolean
     type: object
-  internal_interfaces_http_handlers.RegisterData:
+  handlers.RegisterData:
     properties:
       email:
         example: user@loviary.app
@@ -344,7 +525,7 @@ definitions:
         example: 550e8400-e29b-41d4-a716-446655440000
         type: string
     type: object
-  internal_interfaces_http_handlers.RegisterRequest:
+  handlers.RegisterRequest:
     properties:
       email:
         type: string
@@ -367,10 +548,10 @@ definitions:
     - password
     - username
     type: object
-  internal_interfaces_http_handlers.RegisterResponse:
+  handlers.RegisterResponse:
     properties:
       data:
-        $ref: '#/definitions/internal_interfaces_http_handlers.RegisterData'
+        $ref: '#/definitions/handlers.RegisterData'
       message:
         example: Vui lòng kiểm tra email để xác nhận tài khoản.
         type: string
@@ -378,24 +559,24 @@ definitions:
         example: true
         type: boolean
     type: object
-  internal_interfaces_http_handlers.ReminderListResponse:
+  handlers.ReminderListResponse:
     properties:
       count:
         example: 3
         type: integer
       reminders:
         items:
-          $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.ReminderResponse'
+          $ref: '#/definitions/dto.ReminderResponse'
         type: array
     type: object
-  internal_interfaces_http_handlers.ResendVerificationRequest:
+  handlers.ResendVerificationRequest:
     properties:
       email:
         type: string
     required:
     - email
     type: object
-  internal_interfaces_http_handlers.SuccessResponse:
+  handlers.SuccessResponse:
     properties:
       message:
         example: Operation completed successfully
@@ -404,16 +585,18 @@ definitions:
         example: true
         type: boolean
     type: object
-  internal_interfaces_http_handlers.TokenData:
+  handlers.TokenData:
     properties:
       access_token:
         type: string
       expires_in:
-        $ref: '#/definitions/time.Duration'
+        description: seconds
+        example: 900
+        type: integer
       refresh_token:
         type: string
     type: object
-  internal_interfaces_http_handlers.UpdateDeviceRequest:
+  handlers.UpdateDeviceRequest:
     properties:
       device_name:
         type: string
@@ -429,7 +612,7 @@ definitions:
     - fcm_token
     - platform
     type: object
-  internal_interfaces_http_handlers.UpdateMemoryRequest:
+  handlers.UpdateMemoryRequest:
     properties:
       description:
         type: string
@@ -447,7 +630,7 @@ definitions:
         type: string
       memory_type:
         allOf:
-        - $ref: '#/definitions/loviary_app_backend_internal_domain_memories.MemoryType'
+        - $ref: '#/definitions/memories.MemoryType'
         enum:
         - date_night
         - trip
@@ -458,7 +641,7 @@ definitions:
       title:
         type: string
     type: object
-  internal_interfaces_http_handlers.UpdateMoodRequest:
+  handlers.UpdateMoodRequest:
     properties:
       intensity:
         maximum: 10
@@ -468,7 +651,7 @@ definitions:
         type: boolean
       mood_type:
         allOf:
-        - $ref: '#/definitions/loviary_app_backend_internal_domain_moods.MoodType'
+        - $ref: '#/definitions/moods.MoodType'
         enum:
         - happy
         - sad
@@ -483,7 +666,7 @@ definitions:
       note:
         type: string
     type: object
-  internal_interfaces_http_handlers.UpdateReminderRequest:
+  handlers.UpdateReminderRequest:
     properties:
       description:
         type: string
@@ -491,7 +674,7 @@ definitions:
         type: boolean
       recurrence:
         allOf:
-        - $ref: '#/definitions/loviary_app_backend_internal_domain_reminders.RecurrenceType'
+        - $ref: '#/definitions/reminders.RecurrenceType'
         enum:
         - none
         - daily
@@ -505,7 +688,7 @@ definitions:
       title:
         type: string
     type: object
-  internal_interfaces_http_handlers.UpdateUserRequest:
+  handlers.UpdateUserRequest:
     properties:
       avatar_url:
         type: string
@@ -516,7 +699,7 @@ definitions:
         type: string
       gender:
         allOf:
-        - $ref: '#/definitions/loviary_app_backend_internal_domain_shared.Gender'
+        - $ref: '#/definitions/shared.Gender'
         enum:
         - male
         - female
@@ -529,7 +712,7 @@ definitions:
         maxLength: 50
         type: string
     type: object
-  internal_interfaces_http_handlers.VerifyEmailRequest:
+  handlers.VerifyEmailRequest:
     properties:
       code:
         type: string
@@ -539,7 +722,7 @@ definitions:
     - code
     - user_id
     type: object
-  loviary_app_backend_internal_domain_memories.MemoryType:
+  memories.MemoryType:
     enum:
     - date_night
     - trip
@@ -555,7 +738,7 @@ definitions:
     - MemoryTypeEveryday
     - MemoryTypeCelebration
     - MemoryTypeAchievement
-  loviary_app_backend_internal_domain_moods.MoodType:
+  moods.MoodType:
     enum:
     - happy
     - sad
@@ -579,7 +762,7 @@ definitions:
     - MoodTypeLove
     - MoodTypeStressed
     - MoodTypeGrateful
-  loviary_app_backend_internal_domain_reminders.RecurrenceType:
+  reminders.RecurrenceType:
     enum:
     - none
     - daily
@@ -593,7 +776,7 @@ definitions:
     - RecurrenceWeekly
     - RecurrenceMonthly
     - RecurrenceCustom
-  loviary_app_backend_internal_domain_shared.CoupleStatus:
+  shared.CoupleStatus:
     enum:
     - pending_invitation
     - active
@@ -605,7 +788,7 @@ definitions:
     - CoupleStatusActive
     - CoupleStatusGracePeriod
     - CoupleStatusEnded
-  loviary_app_backend_internal_domain_shared.Gender:
+  shared.Gender:
     enum:
     - male
     - female
@@ -617,7 +800,7 @@ definitions:
     - GenderFemale
     - GenderOther
     - GenderPreferNot
-  loviary_app_backend_internal_domain_shared.RelationshipType:
+  shared.RelationshipType:
     enum:
     - dating
     - engaged
@@ -627,7 +810,7 @@ definitions:
     - RelationshipDating
     - RelationshipEngaged
     - RelationshipMarried
-  loviary_app_backend_internal_domain_streaks.StreakStatus:
+  streaks.StreakStatus:
     enum:
     - none
     - active
@@ -641,267 +824,6 @@ definitions:
     - StreakStatusAtRisk
     - StreakStatusBroken
     - StreakStatusReset
-  loviary_app_backend_internal_interfaces_http_dto.ChapterInfo:
-    properties:
-      cover_image_url:
-        type: string
-      days_together:
-        type: integer
-      milestone_percent:
-        type: integer
-      milestone_target:
-        type: integer
-      start_date:
-        type: string
-      title:
-        type: string
-    type: object
-  loviary_app_backend_internal_interfaces_http_dto.CoupleInfo:
-    properties:
-      couple_id:
-        type: string
-      partner_avatar_url:
-        type: string
-      partner_name:
-        type: string
-      relationship_type:
-        type: string
-    type: object
-  loviary_app_backend_internal_interfaces_http_dto.DashboardResponse:
-    properties:
-      chapter:
-        $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.ChapterInfo'
-      couple:
-        $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.CoupleInfo'
-      daily_spark:
-        $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.SparkInfo'
-      last_updated:
-        type: string
-      streaks:
-        items:
-          $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.StreakInfo'
-        type: array
-      todays_mood:
-        $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.TodaysMoodInfo'
-      user:
-        $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.UserInfo'
-    type: object
-  loviary_app_backend_internal_interfaces_http_dto.DayLog:
-    properties:
-      completed:
-        description: true = both users logged
-        type: boolean
-      day:
-        description: '"Mon", "Tue", ...'
-        type: string
-    type: object
-  loviary_app_backend_internal_interfaces_http_dto.MemoryResponse:
-    properties:
-      couple_id:
-        type: string
-      created_at:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      is_private:
-        type: boolean
-      is_shared:
-        type: boolean
-      location:
-        type: string
-      media_urls:
-        items:
-          type: string
-        type: array
-      memory_date:
-        type: string
-      memory_type:
-        $ref: '#/definitions/loviary_app_backend_internal_domain_memories.MemoryType'
-      title:
-        type: string
-      updated_at:
-        type: string
-      user_id:
-        type: string
-    type: object
-  loviary_app_backend_internal_interfaces_http_dto.MoodEntry:
-    properties:
-      icon:
-        type: string
-      intensity:
-        type: integer
-      mood_type:
-        type: string
-    type: object
-  loviary_app_backend_internal_interfaces_http_dto.MoodResponse:
-    properties:
-      created_at:
-        type: string
-      date:
-        type: string
-      id:
-        type: string
-      intensity:
-        type: integer
-      is_shared:
-        type: boolean
-      mood_emoji:
-        type: string
-      mood_type:
-        $ref: '#/definitions/loviary_app_backend_internal_domain_moods.MoodType'
-      note:
-        type: string
-      updated_at:
-        type: string
-      user_id:
-        type: string
-    type: object
-  loviary_app_backend_internal_interfaces_http_dto.ReminderResponse:
-    properties:
-      created_at:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      is_active:
-        type: boolean
-      last_sent_at:
-        type: string
-      recurrence:
-        $ref: '#/definitions/loviary_app_backend_internal_domain_reminders.RecurrenceType'
-      recurrence_value:
-        type: integer
-      reminder_time:
-        type: string
-      title:
-        type: string
-      updated_at:
-        type: string
-      user_id:
-        type: string
-    type: object
-  loviary_app_backend_internal_interfaces_http_dto.SparkInfo:
-    properties:
-      category:
-        type: string
-      is_answered:
-        type: boolean
-      question:
-        type: string
-      spark_id:
-        type: string
-    type: object
-  loviary_app_backend_internal_interfaces_http_dto.StreakInfo:
-    properties:
-      activity_type:
-        type: string
-      current_streak:
-        type: integer
-      longest_streak:
-        type: integer
-      status:
-        type: string
-      weekly_log:
-        items:
-          $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.DayLog'
-        type: array
-    type: object
-  loviary_app_backend_internal_interfaces_http_dto.StreakResponse:
-    properties:
-      activity_type:
-        type: string
-      couple_id:
-        type: string
-      created_at:
-        type: string
-      current_streak:
-        type: integer
-      last_completed_date:
-        type: string
-      longest_streak:
-        type: integer
-      status:
-        $ref: '#/definitions/loviary_app_backend_internal_domain_streaks.StreakStatus'
-      streak_id:
-        type: string
-      updated_at:
-        type: string
-      weekly_log:
-        items:
-          $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.DayLog'
-        type: array
-    type: object
-  loviary_app_backend_internal_interfaces_http_dto.TodaysMoodInfo:
-    properties:
-      my_mood:
-        $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodEntry'
-      partner_mood:
-        $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodEntry'
-    type: object
-  loviary_app_backend_internal_interfaces_http_dto.UserInfo:
-    properties:
-      avatar_url:
-        type: string
-      display_name:
-        type: string
-      user_id:
-        type: string
-    type: object
-  loviary_app_backend_internal_interfaces_http_dto.UserResponse:
-    properties:
-      avatar_url:
-        type: string
-      created_at:
-        type: string
-      date_of_birth:
-        type: string
-      email:
-        type: string
-      email_verified:
-        type: boolean
-      first_name:
-        type: string
-      gender:
-        $ref: '#/definitions/loviary_app_backend_internal_domain_shared.Gender'
-      id:
-        type: string
-      is_active:
-        type: boolean
-      key_couple:
-        type: string
-      language:
-        type: string
-      last_name:
-        type: string
-      updated_at:
-        type: string
-      username:
-        type: string
-    type: object
-  time.Duration:
-    enum:
-    - -9223372036854775808
-    - 9223372036854775807
-    - 1
-    - 1000
-    - 1000000
-    - 1000000000
-    - 60000000000
-    - 3600000000000
-    format: int64
-    type: integer
-    x-enum-varnames:
-    - minDuration
-    - maxDuration
-    - Nanosecond
-    - Microsecond
-    - Millisecond
-    - Second
-    - Minute
-    - Hour
 host: localhost:8080
 info:
   contact:
@@ -930,7 +852,7 @@ paths:
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Google OAuth redirect
       tags:
       - oauth
@@ -955,23 +877,23 @@ paths:
         "200":
           description: Login successful with tokens
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.LoginResponse'
+            $ref: '#/definitions/handlers.LoginResponse'
         "400":
           description: Missing or invalid code
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: OAuth failed
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "409":
           description: Email exists with different provider
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Google OAuth callback
       tags:
       - oauth
@@ -986,30 +908,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.GoogleMobileRequest'
+          $ref: '#/definitions/handlers.GoogleMobileRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Login successful with tokens
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.LoginResponse'
+            $ref: '#/definitions/handlers.LoginResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Invalid Google token
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "409":
           description: Email exists with different provider
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Google OAuth for mobile
       tags:
       - oauth
@@ -1025,30 +947,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.LoginRequest'
+          $ref: '#/definitions/handlers.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Login successful with tokens
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.LoginResponse'
+            $ref: '#/definitions/handlers.LoginResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Invalid credentials or email not verified
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "403":
           description: Account disabled
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Login user
       tags:
       - auth
@@ -1063,26 +985,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.LogoutRequest'
+          $ref: '#/definitions/handlers.LogoutRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Logged out successfully
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.SuccessResponse'
+            $ref: '#/definitions/handlers.SuccessResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Logout user
@@ -1099,15 +1021,15 @@ paths:
         "200":
           description: Logged out from all devices
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.SuccessResponse'
+            $ref: '#/definitions/handlers.SuccessResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Logout all sessions
@@ -1124,26 +1046,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.RefreshRequest'
+          $ref: '#/definitions/handlers.RefreshRequest'
       produces:
       - application/json
       responses:
         "200":
           description: New tokens issued
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.RefreshResponse'
+            $ref: '#/definitions/handlers.RefreshResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Token expired, revoked or invalid
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Refresh access token
       tags:
       - auth
@@ -1158,26 +1080,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.RegisterRequest'
+          $ref: '#/definitions/handlers.RegisterRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Successfully registered
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.RegisterResponse'
+            $ref: '#/definitions/handlers.RegisterResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "409":
           description: Email or username already exists
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Register a new user
       tags:
       - auth
@@ -1192,26 +1114,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.ResendVerificationRequest'
+          $ref: '#/definitions/handlers.ResendVerificationRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Verification email sent
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.SuccessResponse'
+            $ref: '#/definitions/handlers.SuccessResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: User not found or already verified
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "409":
           description: Verification pending or resend too fast
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Resend verification email
       tags:
       - auth
@@ -1226,30 +1148,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.VerifyEmailRequest'
+          $ref: '#/definitions/handlers.VerifyEmailRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: Email verified successfully
+          description: Email verified — returns user with key_couple
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.SuccessResponse'
+            $ref: '#/definitions/dto.UserResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Verification not found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "409":
           description: Email already verified
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "410":
           description: Code expired
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Verify email
       tags:
       - auth
@@ -1264,30 +1186,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.ConfirmInvitationRequest'
+          $ref: '#/definitions/handlers.ConfirmInvitationRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Invitation accepted
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.MessageResponse'
+            $ref: '#/definitions/handlers.MessageResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Couple not found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Confirm couple invitation
@@ -1304,30 +1226,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.InviteRequest'
+          $ref: '#/definitions/handlers.InviteRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Invitation created
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.InviteResponse'
+            $ref: '#/definitions/handlers.InviteResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: User with invite key not found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "409":
           description: Invitation conflict
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create couple invitation
@@ -1344,19 +1266,19 @@ paths:
         "200":
           description: Breakup initiated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.MessageResponse'
+            $ref: '#/definitions/handlers.MessageResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: No active couple found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete my couple
@@ -1372,15 +1294,15 @@ paths:
         "200":
           description: Couple data
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.CoupleResponse'
+            $ref: '#/definitions/handlers.CoupleResponse'
         "404":
           description: No active couple found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get my couple
@@ -1398,15 +1320,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.DashboardResponse'
+            $ref: '#/definitions/dto.DashboardResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get dashboard
@@ -1432,19 +1354,19 @@ paths:
         "200":
           description: List of memories with pagination info
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.MemoryListResponse'
+            $ref: '#/definitions/handlers.MemoryListResponse'
         "400":
           description: Invalid pagination parameters
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get memories
@@ -1460,26 +1382,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.CreateMemoryRequest'
+          $ref: '#/definitions/handlers.CreateMemoryRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Memory created
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.MemoryResponse'
+            $ref: '#/definitions/dto.MemoryResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create memory
@@ -1502,23 +1424,23 @@ paths:
         "200":
           description: Memory deleted
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.SuccessResponse'
+            $ref: '#/definitions/handlers.SuccessResponse'
         "400":
           description: Invalid memory ID
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Memory not found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete memory
@@ -1540,23 +1462,23 @@ paths:
         "200":
           description: Memory data
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.MemoryResponse'
+            $ref: '#/definitions/dto.MemoryResponse'
         "400":
           description: Invalid memory ID
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Memory not found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get memory
@@ -1577,30 +1499,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.UpdateMemoryRequest'
+          $ref: '#/definitions/handlers.UpdateMemoryRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Updated memory
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.MemoryResponse'
+            $ref: '#/definitions/dto.MemoryResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Memory not found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update memory
@@ -1617,26 +1539,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.CreateMoodRequest'
+          $ref: '#/definitions/handlers.CreateMoodRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Mood created
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodResponse'
+            $ref: '#/definitions/dto.MoodResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create mood
@@ -1659,23 +1581,23 @@ paths:
         "200":
           description: Mood deleted
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.SuccessResponse'
+            $ref: '#/definitions/handlers.SuccessResponse'
         "400":
           description: Invalid mood ID
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Mood not found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete mood
@@ -1697,23 +1619,23 @@ paths:
         "200":
           description: Mood data
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodResponse'
+            $ref: '#/definitions/dto.MoodResponse'
         "400":
           description: Invalid mood ID
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Mood not found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get mood
@@ -1734,30 +1656,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.UpdateMoodRequest'
+          $ref: '#/definitions/handlers.UpdateMoodRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Updated mood
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodResponse'
+            $ref: '#/definitions/dto.MoodResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Mood not found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update mood
@@ -1783,19 +1705,19 @@ paths:
         "200":
           description: Mood history with count
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.MoodListResponse'
+            $ref: '#/definitions/handlers.MoodListResponse'
         "400":
           description: Invalid date format
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get mood history
@@ -1812,19 +1734,19 @@ paths:
         "200":
           description: Today's mood
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.MoodResponse'
+            $ref: '#/definitions/dto.MoodResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: No mood logged today
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get today's mood
@@ -1841,15 +1763,15 @@ paths:
         "200":
           description: List of reminders with count
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ReminderListResponse'
+            $ref: '#/definitions/handlers.ReminderListResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get all reminders
@@ -1865,26 +1787,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.CreateReminderRequest'
+          $ref: '#/definitions/handlers.CreateReminderRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Reminder created
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.ReminderResponse'
+            $ref: '#/definitions/dto.ReminderResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create reminder
@@ -1907,23 +1829,23 @@ paths:
         "200":
           description: Reminder deleted
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.SuccessResponse'
+            $ref: '#/definitions/handlers.SuccessResponse'
         "400":
           description: Invalid reminder ID
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Reminder not found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete reminder
@@ -1945,23 +1867,23 @@ paths:
         "200":
           description: Reminder data
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.ReminderResponse'
+            $ref: '#/definitions/dto.ReminderResponse'
         "400":
           description: Invalid reminder ID
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Reminder not found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get reminder
@@ -1982,30 +1904,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.UpdateReminderRequest'
+          $ref: '#/definitions/handlers.UpdateReminderRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Updated reminder
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.ReminderResponse'
+            $ref: '#/definitions/dto.ReminderResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Reminder not found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update reminder
@@ -2022,22 +1944,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.PresignRequest'
+          $ref: '#/definitions/handlers.PresignRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Presigned URL and file info
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.PresignResponse'
+            $ref: '#/definitions/handlers.PresignResponse'
         "400":
           description: Invalid input or file too large
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Generate presigned upload URL
@@ -2060,23 +1982,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.StreakResponse'
+            $ref: '#/definitions/dto.StreakResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get streak
@@ -2105,19 +2027,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Record activity (deprecated)
@@ -2139,11 +2061,11 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get couple streaks
@@ -2166,19 +2088,19 @@ paths:
         "200":
           description: User found
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.UserResponse'
+            $ref: '#/definitions/dto.UserResponse'
         "400":
           description: Invalid user ID
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: User not found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Get user by ID
       tags:
       - users
@@ -2197,30 +2119,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.UpdateUserRequest'
+          $ref: '#/definitions/handlers.UpdateUserRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Updated user data
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.UserResponse'
+            $ref: '#/definitions/dto.UserResponse'
         "400":
           description: Invalid input or user ID
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: User not found
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update user
@@ -2237,15 +2159,15 @@ paths:
         "200":
           description: User profile
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.UserResponse'
+            $ref: '#/definitions/dto.UserResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get my profile
@@ -2261,26 +2183,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.UpdateUserRequest'
+          $ref: '#/definitions/handlers.UpdateUserRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Updated user data
           schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.UserResponse'
+            $ref: '#/definitions/dto.UserResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update my profile
@@ -2297,59 +2219,25 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.UpdateDeviceRequest'
+          $ref: '#/definitions/handlers.UpdateDeviceRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Device updated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.SuccessResponse'
+            $ref: '#/definitions/handlers.SuccessResponse'
         "400":
           description: Invalid input
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Not authenticated
           schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update my device
-      tags:
-      - users
-  /users/register:
-    post:
-      consumes:
-      - application/json
-      description: Create a new user account (alternative endpoint)
-      parameters:
-      - description: User creation request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/internal_interfaces_http_handlers.CreateUserRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: User created successfully
-          schema:
-            $ref: '#/definitions/loviary_app_backend_internal_interfaces_http_dto.UserResponse'
-        "400":
-          description: Invalid input
-          schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
-        "409":
-          description: Duplicate email or username
-          schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/internal_interfaces_http_handlers.ErrorResponse'
-      summary: Create user
       tags:
       - users
 securityDefinitions:

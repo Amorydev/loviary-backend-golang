@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 
 	"loviary.app/backend/internal/interfaces/http/dto"
@@ -37,7 +35,7 @@ type RegisterResponse struct {
 type LoginData struct {
 	AccessToken  string           `json:"access_token"`
 	RefreshToken string           `json:"refresh_token"`
-	ExpiresIn    time.Duration    `json:"expires_in"`
+	ExpiresIn    int64            `json:"expires_in" example:"900"` // seconds
 	HasCouple    bool             `json:"has_couple"`
 	User         dto.UserResponse `json:"user"`
 }
@@ -50,9 +48,9 @@ type LoginResponse struct {
 
 // TokenData holds the tokens returned by refresh.
 type TokenData struct {
-	AccessToken  string        `json:"access_token"`
-	RefreshToken string        `json:"refresh_token"`
-	ExpiresIn    time.Duration `json:"expires_in"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresIn    int64  `json:"expires_in" example:"900"` // seconds
 }
 
 // RefreshResponse is the response body for POST /auth/refresh.

@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	appAuth "loviary.app/backend/internal/application/auth"
+	appUsers "loviary.app/backend/internal/application/users"
 	"loviary.app/backend/internal/application/verification"
 	"loviary.app/backend/internal/domain/users"
 	"loviary.app/backend/internal/interfaces/http/dto"
@@ -19,15 +20,21 @@ import (
 
 // AuthHandler handles authentication HTTP requests
 type AuthHandler struct {
-	authService        *appAuth.Service
+	authService         *appAuth.Service
 	verificationService *verification.Service
+	userService         *appUsers.Service
 }
 
 // NewAuthHandler creates a new auth handler
-func NewAuthHandler(authService *appAuth.Service, verificationService *verification.Service) *AuthHandler {
+func NewAuthHandler(
+	authService *appAuth.Service,
+	verificationService *verification.Service,
+	userService *appUsers.Service,
+) *AuthHandler {
 	return &AuthHandler{
-		authService:        authService,
+		authService:         authService,
 		verificationService: verificationService,
+		userService:         userService,
 	}
 }
 
@@ -328,7 +335,7 @@ func (h *AuthHandler) LogoutAll(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   request  body  handlers.VerifyEmailRequest  true  "Verification code"
-// @Success  200  {object}  handlers.SuccessResponse "Email verified successfully"
+// @Success  200  {object}  dto.UserResponse "Email verified — returns user with key_couple"
 // @Failure  400  {object}  handlers.ErrorResponse "Invalid input"
 // @Failure  404  {object}  handlers.ErrorResponse "Verification not found"
 // @Failure  410  {object}  handlers.ErrorResponse "Code expired"
@@ -341,8 +348,8 @@ func (h *AuthHandler) VerifyEmail(c *gin.Context) {
 		return
 	}
 
-	// Gọi verification service để xác thực mã
-	_, err := h.verificationService.VerifyCode(c.Request.Context(), req.Code)
+	// Validate and mark the code as used
+	v, err := h.verificationService.VerifyCode(c.Request.Context(), req.Code)
 	if err != nil {
 		switch {
 		case errors.Is(err, verification.ErrNotFound):
@@ -357,9 +364,28 @@ func (h *AuthHandler) VerifyEmail(c *gin.Context) {
 		return
 	}
 
+	// Resolve userID: from verification record, or from request body (hardcode case)
+	userID := v.UserID
+	if userID == uuid.Nil {
+		userID = req.UserID
+	}
+
+	if userID == uuid.Nil {
+		c.JSON(http.StatusBadRequest, apperrors.New("INVALID_INPUT", "user_id is required"))
+		return
+	}
+
+	// Generate key_couple and mark email_verified=true
+	user, err := h.userService.AssignKeyCouple(c.Request.Context(), userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, apperrors.New("INTERNAL_ERROR", "Failed to assign invite code"))
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "Email verified successfully",
+		"data":    dto.UserToResponse(user, false),
 	})
 }
 
