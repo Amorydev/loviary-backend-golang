@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
+	appCouples "loviary.app/backend/internal/application/couples"
 	appUsers "loviary.app/backend/internal/application/users"
 	"loviary.app/backend/internal/domain/shared"
 	"loviary.app/backend/internal/interfaces/http/dto"
@@ -16,12 +17,16 @@ import (
 
 // UserHandler handles user-related HTTP requests
 type UserHandler struct {
-	userService *appUsers.Service
+	userService   *appUsers.Service
+	coupleService *appCouples.Service
 }
 
 // NewUserHandler creates a new user handler
-func NewUserHandler(userService *appUsers.Service) *UserHandler {
-	return &UserHandler{userService: userService}
+func NewUserHandler(userService *appUsers.Service, coupleService *appCouples.Service) *UserHandler {
+	return &UserHandler{
+		userService:   userService,
+		coupleService: coupleService,
+	}
 }
 
 // CreateUserRequest represents the request to create a user
@@ -89,7 +94,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, dto.UserToResponse(user))
+	c.JSON(http.StatusCreated, dto.UserToResponse(user, false))
 }
 
 // GetUser retrieves a user by ID
@@ -118,7 +123,7 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.UserToResponse(user))
+	c.JSON(http.StatusOK, dto.UserToResponse(user, false))
 }
 
 // GetMyProfile returns the authenticated user's profile
@@ -145,7 +150,11 @@ func (h *UserHandler) GetMyProfile(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.UserToResponse(user))
+	// Resolve couple status for unified model
+	couple, _ := h.coupleService.GetActiveByUserID(c.Request.Context(), userID)
+	hasCouple := couple != nil
+
+	c.JSON(http.StatusOK, dto.UserToResponse(user, hasCouple))
 }
 
 // UpdateUser updates user profile
@@ -194,7 +203,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 	existingUser.UpdatedAt = time.Now()
 
 	// TODO: Add Update method to service
-	c.JSON(http.StatusOK, dto.UserToResponse(existingUser))
+	c.JSON(http.StatusOK, dto.UserToResponse(existingUser, false))
 }
 
 // UpdateMyProfile updates the authenticated user's profile
@@ -251,7 +260,9 @@ func (h *UserHandler) UpdateMyProfile(c *gin.Context) {
 	user.UpdatedAt = time.Now()
 
 	// TODO: Add Update method to service
-	c.JSON(http.StatusOK, dto.UserToResponse(user))
+	couple, _ := h.coupleService.GetActiveByUserID(c.Request.Context(), userID)
+	hasCouple := couple != nil
+	c.JSON(http.StatusOK, dto.UserToResponse(user, hasCouple))
 }
 
 // UpdateMyDevice updates the authenticated user's device

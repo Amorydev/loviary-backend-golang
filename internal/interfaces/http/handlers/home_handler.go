@@ -52,11 +52,7 @@ func (h *HomeHandler) GetDashboard(c *gin.Context) {
 // mapDashboardToDTO converts the service DashboardData into the HTTP DTO.
 func mapDashboardToDTO(data *appHome.DashboardData) dto.DashboardResponse {
 	resp := dto.DashboardResponse{
-		User: dto.UserInfo{
-			UserID:      data.User.UserID.String(),
-			DisplayName: data.User.DisplayName,
-			AvatarURL:   data.User.AvatarURL,
-		},
+		User:        dto.UserToResponse(data.User, data.HasCouple),
 		TodaysMood:  mapTodaysMood(data.TodaysMood),
 		Streaks:     mapStreaks(data.Streaks),
 		LastUpdated: data.LastUpdated.Format("2006-01-02T15:04:05Z07:00"),

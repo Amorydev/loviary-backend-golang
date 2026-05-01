@@ -1,52 +1,55 @@
 package auth
 
 import (
-    "context"
-    "database/sql"
-    "errors"
-    "time"
+	"context"
+	"database/sql"
+	"errors"
+	"time"
 
-    "github.com/google/uuid"
-    "golang.org/x/crypto/bcrypt"
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 
-    "loviary.app/backend/internal/domain/auth"
-    "loviary.app/backend/internal/domain/users"
-    postgres "loviary.app/backend/internal/infrastructure/persistence/postgres"
-    "loviary.app/backend/internal/infrastructure/jwt"
-    "loviary.app/backend/internal/application/verification"
-    apperrors "loviary.app/backend/pkg/errors"
-    "loviary.app/backend/pkg/logger"
+	domainAuth "loviary.app/backend/internal/domain/auth"
+	"loviary.app/backend/internal/domain/users"
+	"loviary.app/backend/internal/application/verification"
+	"loviary.app/backend/internal/infrastructure/jwt"
+	postgres "loviary.app/backend/internal/infrastructure/persistence/postgres"
+	apperrors "loviary.app/backend/pkg/errors"
+	"loviary.app/backend/pkg/logger"
 )
 
 // Service handles authentication business logic
 type Service struct {
-    userRepo           *postgres.UserRepository
-    tokenRepo          *postgres.RefreshTokenRepository
-    jwtManager         *jwt.Manager
-    verificationService *verification.Service
-    accessTokenTTL     time.Duration
-    refreshTokenTTL    time.Duration
-    log                *logger.Logger
+	userRepo            *postgres.UserRepository
+	tokenRepo           *postgres.RefreshTokenRepository
+	coupleRepo          *postgres.CoupleRepository
+	jwtManager          *jwt.Manager
+	verificationService *verification.Service
+	accessTokenTTL      time.Duration
+	refreshTokenTTL     time.Duration
+	log                 *logger.Logger
 }
 
 // NewService creates a new auth service
 func NewService(
-    userRepo *postgres.UserRepository,
-    tokenRepo *postgres.RefreshTokenRepository,
-    jwtManager *jwt.Manager,
-    verificationService *verification.Service,
-    log *logger.Logger,
-    accessTokenTTL, refreshTokenTTL time.Duration,
+	userRepo *postgres.UserRepository,
+	tokenRepo *postgres.RefreshTokenRepository,
+	coupleRepo *postgres.CoupleRepository,
+	jwtManager *jwt.Manager,
+	verificationService *verification.Service,
+	log *logger.Logger,
+	accessTokenTTL, refreshTokenTTL time.Duration,
 ) *Service {
-    return &Service{
-        userRepo:           userRepo,
-        tokenRepo:          tokenRepo,
-        jwtManager:         jwtManager,
-        verificationService: verificationService,
-        accessTokenTTL:     accessTokenTTL,
-        refreshTokenTTL:    refreshTokenTTL,
-        log:                log,
-    }
+	return &Service{
+		userRepo:            userRepo,
+		tokenRepo:           tokenRepo,
+		coupleRepo:          coupleRepo,
+		jwtManager:          jwtManager,
+		verificationService: verificationService,
+		accessTokenTTL:      accessTokenTTL,
+		refreshTokenTTL:     refreshTokenTTL,
+		log:                 log,
+	}
 }
 
 // LoginInput represents login credentials
@@ -58,10 +61,11 @@ type LoginInput struct {
 
 // LoginResult contains tokens after successful login
 type LoginResult struct {
-    AccessToken  string     `json:"access_token"`
-    RefreshToken string     `json:"refresh_token"`
-    ExpiresIn    int64      `json:"expires_in"`
-    User         *users.User `json:"user"`
+	AccessToken  string      `json:"access_token"`
+	RefreshToken string      `json:"refresh_token"`
+	ExpiresIn    int64       `json:"expires_in"`
+	User         *users.User `json:"user"`
+	HasCouple    bool        `json:"has_couple"`
 }
 
 // Auth errors
@@ -167,36 +171,32 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
         return nil, apperrors.New("INTERNAL_ERROR", "Failed to generate refresh token ID")
     }
 
-    // Store refresh token hash
-    refreshToken := &auth.RefreshToken{
-        ID:          uuid.New(),
-        UserID:      user.ID,
-        TokenHash:   refreshTokenID, // TODO: hash this before storing
-        ExpiresAt:   time.Now().Add(s.refreshTokenTTL),
-        DeviceInfo:  &input.DeviceInfo,
-        IsRevoked:   false,
-        CreatedAt:   time.Now(),
-    }
+	// Store refresh token hash
+	refreshToken := &domainAuth.RefreshToken{
+		ID:          uuid.New(),
+		UserID:      user.ID,
+		TokenHash:   refreshTokenID, // TODO: hash this before storing
+		ExpiresAt:   time.Now().Add(s.refreshTokenTTL),
+		DeviceInfo:  &input.DeviceInfo,
+		IsRevoked:   false,
+		CreatedAt:   time.Now(),
+	}
 
-    if err := s.tokenRepo.Create(ctx, refreshToken); err != nil {
+	if err := s.tokenRepo.Create(ctx, refreshToken); err != nil {
         return nil, apperrors.New("INTERNAL_ERROR", "Failed to store refresh token")
     }
 
-    return &LoginResult{
-        AccessToken:  accessToken,
-        RefreshToken: refreshTokenID,
-        ExpiresIn:    int64(s.accessTokenTTL.Seconds()),
-        User: &users.User{
-            ID:            user.ID,
-            Username:      user.Username,
-            Email:         user.Email,
-            FirstName:     user.FirstName,
-            LastName:      user.LastName,
-            AvatarURL:     user.AvatarURL,
-            IsActive:      user.IsActive,
-            EmailVerified: user.EmailVerified,
-        },
-    }, nil
+	// Resolve couple status — non-blocking: if this fails we default to false
+	couple, _ := s.coupleRepo.GetActiveByUserID(ctx, user.ID)
+	hasCouple := couple != nil
+
+	return &LoginResult{
+		AccessToken:  accessToken,
+		RefreshToken: refreshTokenID,
+		ExpiresIn:    int64(s.accessTokenTTL.Seconds()),
+		HasCouple:    hasCouple,
+		User:         user,
+	}, nil
 }
 
 // RefreshTokenInput for token refresh
@@ -254,35 +254,31 @@ func (s *Service) Refresh(ctx context.Context, input RefreshTokenInput) (*LoginR
         return nil, apperrors.New("INTERNAL_ERROR", "Failed to generate new refresh token ID")
     }
 
-    newRefreshToken := &auth.RefreshToken{
-        ID:          uuid.New(),
-        UserID:      user.ID,
-        TokenHash:   newRefreshTokenID, // TODO: hash
-        ExpiresAt:   time.Now().Add(s.refreshTokenTTL),
-        DeviceInfo:  &input.DeviceInfo,
-        IsRevoked:   false,
-        CreatedAt:   time.Now(),
-    }
+	newRefreshToken := &domainAuth.RefreshToken{
+		ID:          uuid.New(),
+		UserID:      user.ID,
+		TokenHash:   newRefreshTokenID, // TODO: hash
+		ExpiresAt:   time.Now().Add(s.refreshTokenTTL),
+		DeviceInfo:  &input.DeviceInfo,
+		IsRevoked:   false,
+		CreatedAt:   time.Now(),
+	}
 
     if err := s.tokenRepo.Create(ctx, newRefreshToken); err != nil {
         return nil, apperrors.New("INTERNAL_ERROR", "Failed to store new refresh token")
     }
 
-    return &LoginResult{
-        AccessToken:  accessToken,
-        RefreshToken: newRefreshTokenID,
-        ExpiresIn:    int64(s.accessTokenTTL.Seconds()),
-        User: &users.User{
-            ID:            user.ID,
-            Username:      user.Username,
-            Email:         user.Email,
-            FirstName:     user.FirstName,
-            LastName:      user.LastName,
-            AvatarURL:     user.AvatarURL,
-            IsActive:      user.IsActive,
-            EmailVerified: user.EmailVerified,
-        },
-    }, nil
+	// Resolve couple status — non-blocking: if this fails we default to false
+	couple, _ := s.coupleRepo.GetActiveByUserID(ctx, user.ID)
+	hasCouple := couple != nil
+
+	return &LoginResult{
+		AccessToken:  accessToken,
+		RefreshToken: newRefreshTokenID,
+		ExpiresIn:    int64(s.accessTokenTTL.Seconds()),
+		HasCouple:    hasCouple,
+		User:         user,
+	}, nil
 }
 
 // Logout invalidates the refresh token

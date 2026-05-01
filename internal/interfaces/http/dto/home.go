@@ -2,20 +2,13 @@ package dto
 
 // DashboardResponse is the full dashboard payload returned by GET /home.
 type DashboardResponse struct {
-	User        UserInfo       `json:"user"`
+	User        UserResponse   `json:"user"`
 	Couple      *CoupleInfo    `json:"couple,omitempty"`
 	Chapter     *ChapterInfo   `json:"chapter,omitempty"`
 	TodaysMood  TodaysMoodInfo `json:"todays_mood"`
 	Streaks     []StreakInfo   `json:"streaks"`
 	DailySpark  *SparkInfo     `json:"daily_spark,omitempty"`
 	LastUpdated string         `json:"last_updated"`
-}
-
-// UserInfo contains the current user's display data.
-type UserInfo struct {
-	UserID      string `json:"user_id"`
-	DisplayName string `json:"display_name"`
-	AvatarURL   string `json:"avatar_url"`
 }
 
 // CoupleInfo contains couple + partner display data.

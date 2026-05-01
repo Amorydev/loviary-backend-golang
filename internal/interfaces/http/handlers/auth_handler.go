@@ -12,6 +12,7 @@ import (
 	appAuth "loviary.app/backend/internal/application/auth"
 	"loviary.app/backend/internal/application/verification"
 	"loviary.app/backend/internal/domain/users"
+	"loviary.app/backend/internal/interfaces/http/dto"
 	"loviary.app/backend/internal/interfaces/http/middleware"
 	apperrors "loviary.app/backend/pkg/errors"
 )
@@ -201,16 +202,8 @@ func (h *AuthHandler) Login(c *gin.Context) {
 			"access_token":  result.AccessToken,
 			"refresh_token": result.RefreshToken,
 			"expires_in":    result.ExpiresIn,
-			"user": gin.H{
-				"user_id":        result.User.ID,
-				"username":       result.User.Username,
-				"email":          result.User.Email,
-				"first_name":     result.User.FirstName,
-				"last_name":      result.User.LastName,
-				"avatar_url":     result.User.AvatarURL,
-				"is_active":      result.User.IsActive,
-				"email_verified": result.User.EmailVerified,
-			},
+			"has_couple":    result.HasCouple,
+			"user":          dto.UserToResponse(result.User, result.HasCouple),
 		},
 	})
 }
@@ -262,6 +255,8 @@ func (h *AuthHandler) Refresh(c *gin.Context) {
 			"access_token":  result.AccessToken,
 			"refresh_token": result.RefreshToken,
 			"expires_in":    result.ExpiresIn,
+			"has_couple":    result.HasCouple,
+			"user":          dto.UserToResponse(result.User, result.HasCouple),
 		},
 	})
 }

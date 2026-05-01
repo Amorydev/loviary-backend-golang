@@ -8,6 +8,9 @@ import (
 	"loviary.app/backend/internal/interfaces/http/dto"
 )
 
+// Ensure uuid is used (RegisterData uses uuid.UUID).
+var _ = uuid.UUID{}
+
 // SuccessResponse is a generic success response with no data payload.
 type SuccessResponse struct {
 	Success bool   `json:"success" example:"true"`
@@ -30,24 +33,13 @@ type RegisterResponse struct {
 	Message string       `json:"message" example:"Vui lòng kiểm tra email để xác nhận tài khoản."`
 }
 
-// LoginUserData holds user fields returned inside LoginResponse.
-type LoginUserData struct {
-	UserID        uuid.UUID `json:"user_id"`
-	Username      string    `json:"username"`
-	Email         string    `json:"email"`
-	FirstName     *string   `json:"first_name,omitempty"`
-	LastName      *string   `json:"last_name,omitempty"`
-	AvatarURL     *string   `json:"avatar_url,omitempty"`
-	IsActive      bool      `json:"is_active"`
-	EmailVerified bool      `json:"email_verified"`
-}
-
-// LoginData holds tokens returned after login.
+// LoginData holds tokens and user data returned after login.
 type LoginData struct {
-	AccessToken  string        `json:"access_token"`
-	RefreshToken string        `json:"refresh_token"`
-	ExpiresIn    time.Duration `json:"expires_in"`
-	User         LoginUserData `json:"user"`
+	AccessToken  string           `json:"access_token"`
+	RefreshToken string           `json:"refresh_token"`
+	ExpiresIn    time.Duration    `json:"expires_in"`
+	HasCouple    bool             `json:"has_couple"`
+	User         dto.UserResponse `json:"user"`
 }
 
 // LoginResponse is the response body for POST /auth/login.

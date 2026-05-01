@@ -51,12 +51,8 @@ func NewService(
 
 // --- Internal summary types ---
 
-// UserSummary holds the current user's display info.
-type UserSummary struct {
-	UserID      uuid.UUID
-	DisplayName string
-	AvatarURL   string
-}
+// UserSummary is kept for backward compatibility but DashboardData now carries
+// the full *domainUsers.User so the HTTP layer can map it through dto.UserToResponse.
 
 // CoupleSummary holds couple + partner info.
 type CoupleSummary struct {
@@ -108,13 +104,14 @@ type SparkSummary struct {
 
 // DashboardData is the aggregated dashboard payload.
 type DashboardData struct {
-	User        UserSummary
+	User        *domainUsers.User
 	Couple      *CoupleSummary
 	Chapter     *ChapterSummary
 	TodaysMood  TodaysMoodSummary
 	Streaks     []StreakSummary
 	DailySpark  *SparkSummary
 	LastUpdated time.Time
+	HasCouple   bool
 }
 
 // GetDashboard retrieves all data needed for the home dashboard in a single call.
@@ -128,11 +125,7 @@ func (s *Service) GetDashboard(ctx context.Context, userID uuid.UUID) (*Dashboar
 	if err != nil {
 		return nil, apperrors.New("INTERNAL_ERROR", "Failed to get user")
 	}
-	data.User = UserSummary{
-		UserID:      user.ID,
-		DisplayName: user.DisplayName(),
-		AvatarURL:   avatarURL(user),
-	}
+	data.User = user
 
 	// ── 2. Active couple ─────────────────────────────────────────────────────
 	couple, err := s.coupleService.GetActiveByUserID(ctx, userID)
@@ -143,6 +136,7 @@ func (s *Service) GetDashboard(ctx context.Context, userID uuid.UUID) (*Dashboar
 		}
 		return nil, apperrors.New("INTERNAL_ERROR", "Failed to get couple")
 	}
+	data.HasCouple = true
 
 	// ── 3. Partner info ──────────────────────────────────────────────────────
 	partnerID, ok := couple.GetPartnerID(userID)

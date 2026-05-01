@@ -143,6 +143,7 @@ func main() {
 	authService := auth.NewService(
 		userRepo,
 		tokenRepo,
+		coupleRepo,
 		jwtManager,
 		verificationService,
 		log,
@@ -177,7 +178,7 @@ func main() {
 	)
 
 	// Initialize handlers
-	userHandler := handlers.NewUserHandler(userService)
+	userHandler := handlers.NewUserHandler(userService, coupleService)
 	authHandler := handlers.NewAuthHandler(authService, verificationService)
 	oauthHandler := handlers.NewOAuthHandler(oauthService)
 	coupleHandler := handlers.NewCoupleHandler(coupleService, userService)
